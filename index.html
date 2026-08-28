@@ -305,6 +305,12 @@
   .sync-modal .gh-input.gh-req{border-color:#b7c6f2;padding-right:48px;}
   .sync-modal .gh-input.gh-req:focus{border-color:#2f6bff;box-shadow:0 0 0 3px rgba(47,107,255,.16);outline:none;}
   .sync-modal .gh-msg{font-size:12px;margin-top:10px;min-height:16px;}
+  .sync-modal .gh-howto{margin:10px 0 4px;font-size:12.5px;color:var(--sub);background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:8px 12px;}
+  .sync-modal .gh-howto summary{cursor:pointer;color:var(--brand);font-weight:600;}
+  .sync-modal .gh-howto ol{margin:8px 0 4px;padding-left:18px;line-height:1.7;}
+  .sync-modal .gh-howto code{background:#eef1f5;padding:1px 5px;border-radius:5px;font-size:12px;}
+  .sync-modal .gh-howto p{margin:6px 0 0;line-height:1.6;}
+  .sync-modal .onboard-list{margin:8px 0 12px;padding-left:18px;line-height:1.75;font-size:13px;color:var(--ink);}
   @media (max-width:480px){
     #ghModal.modal-mask{align-items:center;padding-bottom:24px;padding-top:24px;}
     .sync-modal{max-height:72vh;}
@@ -422,6 +428,16 @@
   <div class="modal sync-modal">
     <p class="modal-title">GitHub 同步</p>
     <div class="explain">数据通过你的 <b>GitHub 私有 Gist</b> 跨设备同步（零费用、数据归你）。在另一台设备输入<b>同一令牌</b>，会自动连到同一份备份。</div>
+    <details class="gh-howto">
+      <summary>如何获取 GitHub 令牌？（只勾 gist 权限）</summary>
+      <ol>
+        <li>打开 <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a></li>
+        <li>点 <b>Generate new token (classic)</b>，Note 随意填</li>
+        <li>权限<b>只勾 gist</b> 这一项（其余别勾）</li>
+        <li>生成后复制 <code>ghp_...</code> 粘贴到下方</li>
+      </ol>
+      <p>连接后会自动在你的账户下创建<b>私有 Gist</b>保管数据，作者无法访问、看不到内容。</p>
+    </details>
     <div id="ghStatusLine" class="status-box" style="display:none;"></div>
     <div id="ghTokenWrap" style="margin-top:6px;">
       <label style="font-size:12px;color:var(--sub);display:block;margin:4px 0 4px;">GitHub 访问令牌 <span style="color:#e5484d;font-weight:700;">（必填）</span> <span style="color:#9aa3af;">· Token 只勾 gist 权限</span></label>
@@ -445,6 +461,23 @@
 </div>
 
 
+
+  <div class="modal-mask" id="onboardModal">
+    <div class="modal sync-modal">
+      <p class="modal-title">欢迎使用求职岗位跟踪</p>
+      <div class="explain">一个纯前端、零依赖的求职管理工具，帮你把投递全流程管清楚：</div>
+      <ul class="onboard-list">
+        <li><b>看板</b>：总览 / 状态分布 / 周期趋势，一眼掌握投递全貌</li>
+        <li><b>JD 自动填充</b>：粘贴 JD 原文自动提取公司、岗位、职责，少手工录入</li>
+        <li><b>数据默认存本机浏览器</b>，不联网也照用</li>
+      </ul>
+      <div class="status-box" style="font-size:13px;">💡 想跨设备同步？点顶部「云同步」连接你的 GitHub 私有 Gist（<b>数据归你、免费、作者看不到</b>）。不连也完全可用。</div>
+      <div class="modal-actions sync-actions">
+        <button type="button" class="m-ok" id="onboardStart">开始使用</button>
+        <button type="button" class="m-cancel" id="onboardLater">以后再说</button>
+      </div>
+    </div>
+  </div>
 
   <button type="button" class="qa-fab" id="qaFab" aria-label="一键录入岗位">
     <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -887,7 +920,19 @@
     setTimeout(moveIndicator, 300);
     window.addEventListener('load', moveIndicator);
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
+    maybeOnboard();
   }
+  function maybeOnboard(){
+    try{
+      if(localStorage.getItem('wb_jobtrack_onboarded')) return;
+      if(allRows.length>0 || gh.enabled){ localStorage.setItem('wb_jobtrack_onboarded','1'); return; }
+      var om=document.getElementById('onboardModal'); if(om) om.classList.add('show');
+    }catch(e){}
+  }
+  var obStart=document.getElementById('onboardStart');
+  if(obStart) obStart.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); });
+  var obLater=document.getElementById('onboardLater');
+  if(obLater) obLater.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); });
 
 
   function buildFilters(){
