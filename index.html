@@ -160,6 +160,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   /* 卡片 */
   .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 13px 11px;margin-bottom:15px;
     box-shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.05);transition:box-shadow .15s ease,transform .15s ease;}
+  .card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-accent,transparent);opacity:.32;}
   .card.dd-open{z-index:20;}
   .card:hover{box-shadow:0 2px 6px rgba(16,24,40,.08),0 8px 22px rgba(47,107,255,.12);transform:translateY(-1px);}
   .card.alert{border-color:#ffd0d0;}
@@ -1276,6 +1277,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     if(gh.enabled) startAutoPull();
     updateTabs();
+    applyQAVisibility();
     requestAnimationFrame(moveIndicator);
     setTimeout(moveIndicator, 0);
     setTimeout(moveIndicator, 80);
@@ -1668,6 +1670,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var id = r.id;
     var st=r['投递状态']||'';
     var cls=BADGE_CLASS[st]||'b-todo';
+    var accent=STATUS_COLOR[st]||'#9aa0a6';
     var alert = (st==='待投') ? ' alert':'';
     // 打招呼话术：默认折叠（与 JD 一致），标题栏右侧带复制（点标题展开/收起，点复制不误触折叠）
     var pitchSec = r['打招呼话术'] ?
@@ -1685,7 +1688,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         +'</summary>'
         +'<p class="card-jd">'+esc(r['JD原文'])+'</p>'
       +'</details>' : '';
-    return '<div class="card'+alert+'" data-id="'+esc(id)+'">'
+    return '<div class="card'+alert+'" data-id="'+esc(id)+'" style="--status-accent:'+esc(accent)+';">'
       +'<div class="card-head"><div class="card-title">'
         +'<span class="card-company">'+esc(r['公司']||'未填公司')+'</span>'
         +'<span class="card-position">'+(r['职位']?esc(r['职位']):'')+'</span>'
@@ -1875,7 +1878,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   makeEntry({jd:document.getElementById('qaJdM'), btn:document.getElementById('qaBtnM'), msg:document.getElementById('qaMsgM'), onSuccess:function(){ var m=document.getElementById('qaModal'); if(m) m.classList.remove('show'); modalConfirm('已录入岗位，请在列表里查看！','确认'); }});
 
   // 一键录入：收起 / 悬浮按钮 / 弹窗
-  var qaCollapsed=false;
+  var QA_COLLAPSED_KEY='jobTracker.qaCollapsed';
+  var qaCollapsed=(function(){ try{ return localStorage.getItem(QA_COLLAPSED_KEY)==='true'; }catch(e){ return false; } })();
   var qaFab=document.getElementById('qaFab');
   var qaModal=document.getElementById('qaModal');
   var qaCollapse=document.getElementById('qaCollapse');
@@ -1892,6 +1896,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var rect=qaEl.getBoundingClientRect();
     // 先让 FAB 就位并显示（scale(0)隐形），再读真实中心作为动画终点（贴右/贴左/被拖动都精准对准）
     qaCollapsed=true;
+    try{ localStorage.setItem(QA_COLLAPSED_KEY,'true'); }catch(e){}
     var fx=window.innerWidth-39, fy=window.innerHeight*0.65+27; // 兜底：右侧静止坐标
     if(qaFab){
       qaFab.style.display='flex';                 // 先显示，才能读到真实位置
@@ -2138,7 +2143,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
-        gistShow.innerHTML='当前备份 Gist ID：<b class="gist-id-copy" style="word-break:break-all;cursor:pointer;" title="点击复制 Gist ID">'+esc(gh.gistId)+'</b>（点击复制）';
+        gistShow.innerHTML='<span class="gist-id-copy" style="cursor:pointer;" title="点击复制 Gist ID">当前备份 Gist ID：<b style="word-break:break-all;">'+esc(gh.gistId)+'</b>（点击复制）</span>';
         var el=gistShow.querySelector('.gist-id-copy');
         if(el) el.addEventListener('click',function(){ doCopy(gh.gistId); });
       } else {
