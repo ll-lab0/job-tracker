@@ -706,17 +706,28 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     try{ localStorage.setItem(GH_TOKEN_KEY, gh.token); localStorage.setItem(GH_GIST_KEY, gh.gistId); }catch(e){}
     touchGhCookies();
   }
+  // 同步请求封装：超时独立于 AbortController（Promise.race）。即使运行环境不支持 AbortController，
+  // 也会在 GH_SYNC_TIMEOUT 后 reject，杜绝「请求卡死 → 状态条永久显示同步中」的问题（CloudStudio 手机端曾复现）
+  var GH_SYNC_TIMEOUT=15000;
   function ghApi(path, method, body){
-    var ctrl=(window.AbortController)?new AbortController():null;
-    var to=ctrl?setTimeout(function(){ ctrl.abort(); }, 20000):null;
     var opt={ method:method, headers:{ 'Authorization':'Bearer '+gh.token, 'Accept':'application/vnd.github+json' } };
-    if(ctrl) opt.signal=ctrl.signal;
     if(body!==undefined){ opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body); }
-    return fetch('https://api.github.com'+path, opt).then(function(r){
-      if(to) clearTimeout(to);
+    var ctrl=(window.AbortController)?new AbortController():null;
+    if(ctrl) opt.signal=ctrl.signal;
+    var timerId=null;
+    var timeoutP=new Promise(function(_, reject){
+      timerId=setTimeout(function(){ reject(new Error('请求超时（15秒），请检查网络或令牌权限')); if(ctrl) try{ ctrl.abort(); }catch(e){} }, GH_SYNC_TIMEOUT);
+    });
+    var fetchP=fetch('https://api.github.com'+path, opt).then(function(r){
+      if(timerId) clearTimeout(timerId);
       touchGhCookies(); // 每次成功请求刷新 cookie 时间戳，对抗 iOS ITP 7 天清理
       return r.json().then(function(j){ if(!r.ok){ var err=new Error((j&&j.message)||('HTTP '+r.status)); err.status=r.status; if(j&&j.message&&/rate limit/i.test(j.message)) err.rateLimited=true; throw err; } return j; });
-    }).catch(function(e){ if(to) clearTimeout(to); if(ctrl && ctrl.signal && ctrl.signal.aborted) throw new Error('请求超时（20秒），请检查网络或令牌权限'); throw e; });
+    }).catch(function(e){
+      if(timerId) clearTimeout(timerId);
+      if(ctrl && ctrl.signal && ctrl.signal.aborted) throw new Error('请求超时（15秒），请检查网络或令牌权限');
+      throw e;
+    });
+    return Promise.race([fetchP, timeoutP]);
   }
   // 将同步错误分类为可读提示（令牌 / 网络 / 配额），用于状态条与失败提示
   function ghErrInfo(e){
@@ -804,8 +815,13 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         normalizeRows(allRows);
         lsSave(allRows);
       }
-    }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); })
-    .then(function(){ buildFilters(); render(); });
+      buildFilters(); render(); // 拉取完成（含空云端）即重建列表；拉取失败走 catch，不重建
+    }).catch(function(e){
+      var info=ghErrInfo(e); console.error(e);
+      // 拉取失败：状态条红 + 明确本地数据已保留，绝不静默丢数据；也不误判为成功继续推送
+      setSync(info.title+'：'+info.detail+' · 本地数据已保留','error');
+      throw e; // re-throw：让调用方（schedulePush/ghRetrySync/连接流程）感知拉取失败，而非当作成功
+    });
   }
   // 关闭/刷新页面兜底推送：用 keepalive fetch，页面卸载也能把本地改动送出（防"刚改完就强关"丢失）
   function ghFlush(){
@@ -1131,7 +1147,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ ghPull(true); }
+    else if(gh.enabled){ buildFilters(); render(); ghPull(false); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     updateTabs();
     requestAnimationFrame(moveIndicator);
