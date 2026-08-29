@@ -804,7 +804,6 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         normalizeRows(allRows);
         lsSave(allRows);
       }
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发');
     }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); })
     .then(function(){ buildFilters(); render(); });
   }
