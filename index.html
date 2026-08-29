@@ -347,23 +347,34 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     #ghModal.modal-mask{align-items:center;}
   }
   /* 求职日历 */
-  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 2px 10px;}
-  .cal-title{font-size:16px;font-weight:700;color:#1f2a44;}
-  .cal-nav{border:1px solid #dbe2ef;background:#fff;color:#33415c;border-radius:8px;min-width:34px;height:32px;padding:0 10px;font-size:15px;cursor:pointer;}
-  .cal-nav:hover{background:#f0f5ff;}
-  .cal-nav.cal-today{font-size:13px;min-width:48px;}
-  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
-  .cal-week span{text-align:center;font-size:12px;color:#9aa3af;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:76px;padding:6px 5px;background:#fff;font-size:12px;}
-  .cal-cell.cal-empty{background:transparent;border:none;}
-  .cal-cell.cal-has{cursor:pointer;background:#f5f9ff;border-color:#c2d8ff;}
-  .cal-cell.cal-has:hover{box-shadow:0 2px 10px rgba(47,107,255,.14);}
-  .cal-cell.cal-today-cell{border-color:#2f6bff;}
-  .cal-date{font-size:13px;color:#33415c;font-weight:600;margin-bottom:2px;}
-  .cal-badge{font-size:11px;line-height:1.35;margin-top:3px;border-radius:6px;padding:1px 5px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-  .cal-badge.cal-deliver{background:#eafaf1;color:#1a8a55;}
-  .cal-badge.cal-interview{background:#fff3e6;color:#d9720a;margin-right:3px;}
+  #calendarView{padding:2px 0 8px;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 2px 12px;}
+  .cal-title{font-size:17px;font-weight:700;color:#1f2a44;letter-spacing:.3px;}
+  .cal-nav{border:1px solid #e3e8f0;background:#fff;color:#33415c;border-radius:9px;min-width:36px;height:34px;padding:0 12px;font-size:16px;cursor:pointer;transition:background .15s,box-shadow .15s;}
+  .cal-nav:hover{background:#f0f5ff;box-shadow:0 1px 4px rgba(47,107,255,.12);}
+  .cal-nav:active{transform:scale(.96);}
+  .cal-nav.cal-today{font-size:13px;min-width:52px;color:#2f6bff;border-color:#c2d8ff;}
+  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;}
+  .cal-week span{text-align:center;font-size:12px;font-weight:600;color:#aab2c0;}
+  .cal-week span:first-child,.cal-week span:last-child{color:#cf9b9b;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:#f7f9fc;border:1px solid #eef1f6;border-radius:14px;padding:8px;}
+  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:82px;padding:7px 6px;background:#fff;font-size:12px;transition:box-shadow .15s,transform .15s;position:relative;}
+  .cal-cell.cal-empty{background:transparent;border:none;min-height:0;padding:0;}
+  .cal-cell.cal-has{cursor:pointer;background:linear-gradient(180deg,#f5f9ff,#eef4ff);border-color:#cfe0ff;}
+  .cal-cell.cal-has:hover{box-shadow:0 4px 14px rgba(47,107,255,.18);transform:translateY(-1px);}
+  .cal-cell.cal-has:active{transform:translateY(0);}
+  .cal-cell.cal-today-cell{border-color:#2f6bff;box-shadow:inset 0 0 0 1px #2f6bff;}
+  .cal-cell.cal-today-cell.cal-has::after{content:'今天';position:absolute;top:5px;right:6px;font-size:10px;color:#2f6bff;font-weight:700;}
+  .cal-date{font-size:13px;color:#33415c;font-weight:600;margin-bottom:4px;}
+  .cal-cell.cal-today-cell .cal-date{color:#2f6bff;}
+  .cal-badge{font-size:11px;line-height:1.3;margin-top:4px;border-radius:7px;padding:2px 6px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-badge.cal-deliver{background:#e7f7ee;color:#16824f;font-weight:600;}
+  .cal-badge.cal-interview{background:#fff1e0;color:#cf6f0a;font-weight:600;}
+  .cal-legend{display:flex;gap:16px;align-items:center;margin:14px 4px 2px;font-size:12px;color:#6b7280;}
+  .cal-leg-item{display:flex;align-items:center;gap:6px;}
+  .cal-dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .cal-dot-deliver{background:#16824f;}
+  .cal-dot-interview{background:#cf6f0a;}
   .cal-note{font-size:12px;color:#9aa3af;margin:10px 2px;}
   .cal-detail-modal{max-width:440px;}
   .cal-detail-sec{margin:8px 0;}
@@ -401,13 +412,13 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span>岗位列表</span>
     </button>
-    <button class="tab-btn" data-view="dash">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>求职复盘</span>
-    </button>
     <button class="tab-btn" data-view="calendar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span>求职日历</span>
+    </button>
+    <button class="tab-btn" data-view="dash">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>求职复盘</span>
     </button>
   </div>
   <div class="tab-panel" id="tabPanel">
@@ -1416,7 +1427,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       html+='</div>';
     });
     html+='</div>';
-    html+='<div class="cal-note">仅显示有投递 / 面试日期的日期；点某天看当天明细。历史记录可在「编辑」里补填日期。</div>';
+    html+='<div class="cal-legend"><span class="cal-leg-item"><i class="cal-dot cal-dot-deliver"></i>投递记录</span><span class="cal-leg-item"><i class="cal-dot cal-dot-interview"></i>面试安排</span></div>';
+    html+='<div class="cal-note">仅显示填了「投递日期 / 面试日期」的日期；点某天看当天明细。历史记录可在「编辑」里补填日期。</div>';
     cv.innerHTML=html;
     var prev=document.getElementById('calPrev'); if(prev) prev.onclick=function(){ calState.month--; if(calState.month<0){calState.month=11;calState.year--;} renderCalendar(); };
     var next=document.getElementById('calNext'); if(next) next.onclick=function(){ calState.month++; if(calState.month>11){calState.month=0;calState.year++;} renderCalendar(); };
