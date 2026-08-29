@@ -853,9 +853,22 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     clearTimeout(pushTimer);
     pushTimer=setTimeout(function(){
       setSync('同步中…');
-      // 先拉后推：先 ghPull(false) 逐条按 updated 合并云端（删除优先），再 ghPush 本机全量；任一方都不会被单方面覆盖
-      ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
+      // 先推后拉：先把本机改动（含刚补填的投递/面试日期）推上去，确保一定上传、不被前置拉取失败短路；
+      // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
+      ghPush(allRows)
+        .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
+        .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+        .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
     }, 800);
+  }
+  // 真正的双向同步：先推本机改动，再拉云端合并（拉取失败也照常推）。供「云同步」按钮与重试复用
+  function twoWaySync(){
+    if(!gh.enabled) return;
+    setSync('同步中…');
+    ghPush(allRows)
+      .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
+      .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+      .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
   }
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
   function ghPull(force){
@@ -2064,7 +2077,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ ghPull().then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(){}); } });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
@@ -2122,6 +2135,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   var searchInput=document.getElementById('searchInput');
   if(searchInput){ searchInput.addEventListener('input',function(){ searchTerm=searchInput.value.trim(); render(); }); }
+
+  // 切回页面（如手机端推完、回到电脑端标签页）自动拉一次云端，及时拿到其他设备的日期/状态更新；只拉不推，安全
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden && gh.enabled){ ghPull(false).catch(function(){}); } });
 
   init();
 })();
