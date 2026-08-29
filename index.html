@@ -114,12 +114,12 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .aihint b{color:var(--brand-d);}
   .aihint .x{margin-left:auto;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;padding:0 2px;}
   /* 筛选 */
-  .filters{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 16px;-webkit-overflow-scrolling:touch;}
-  .filters button{flex:0 0 auto;background:#f7f9fc;border:1px solid #e8ebf0;border-radius:18px;
-    min-height:34px;padding:0 13px;font-size:14.5px;color:#6b7280;font-weight:500;transition:all .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.02);cursor:pointer;}
+  .filters{display:flex;gap:0;overflow-x:auto;padding:3px;background:#eef1f5;border-radius:11px;-webkit-overflow-scrolling:touch;}
+  .filters button{flex:0 0 auto;background:transparent;border:none;border-radius:8px;
+    min-height:30px;padding:0 13px;font-size:14px;color:#6b7280;font-weight:500;transition:all .15s ease;box-shadow:none;cursor:pointer;}
   .filters button:active{transform:scale(.96);}
-  .filters button.on{background:#dbe7ff;color:#1d4ed8;border-color:#bcd0ff;font-weight:600;box-shadow:none;}
-  .filters button .f-cnt{display:inline-block;min-width:16px;margin-left:5px;padding:0 4px;font-size:11px;line-height:16px;border-radius:8px;background:#e5e7eb;color:#6b7280;font-weight:600;vertical-align:middle;position:relative;top:-1px;}
+  .filters button.on{background:#ffffff;color:#1d4ed8;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .filters button .f-cnt{display:inline-block;min-width:16px;margin-left:5px;padding:0 4px;font-size:11px;line-height:16px;border-radius:8px;background:rgba(0,0,0,.06);color:#6b7280;font-weight:600;vertical-align:middle;position:relative;top:-1px;}
   .filters button.on .f-cnt{background:#c2d6ff;color:#1d4ed8;}
   /* 操作分组容器：搜索/周期/展开/状态筛选与下方岗位卡片同属一个分区，不做卡片化割裂 */
   .ops-group{background:transparent;border:none;border-radius:0;padding:0;margin-bottom:10px;}
@@ -653,7 +653,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   var STATUS_LIST=['待打招呼','待投','已投·待回复','不合适','面试中','已拒','已Offer'];
   var BADGE_CLASS={'待打招呼':'b-greet','待投':'b-todo','已投·待回复':'b-sent','不合适':'b-nofit','面试中':'b-interview','已Offer':'b-offer','已拒':'b-reject'};
-  var STATUS_COLOR={'待打招呼':'#fde2e2','待投':'#fef3c7','已投·待回复':'#ffe4d6','不合适':'#fef9c3','面试中':'#d1fae5','已Offer':'#9f7aea','已拒':'#eef0f3'};
+  var STATUS_COLOR={'待打招呼':'#fde2e2','待投':'#fef3c7','已投·待回复':'#ffe4d6','不合适':'#fef9c3','面试中':'#d1fae5','已Offer':'#c4b5fd','已拒':'#eef0f3'};
 
   function todayStr(){ return dateStr(); }
   function dateStr(){
@@ -1224,8 +1224,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   window.addEventListener('resize', moveIndicator);
   // 全局一键展开 / 收起：JD 与 打招呼话术 独立控制（按钮在列表上方工具条，render 重建列表不影响按钮引用）
   var expandBar = document.getElementById('expandBar');
-  var expandJdBtn = createButton('io-btn expand-link', '一键展开 JD', expandBar);
-  var expandPitchBtn = createButton('io-btn expand-link', '一键展开话术', expandBar);
+  var expandJdBtn = createButton('io-btn expand-link', '一键展开 JD ▼', expandBar);
+  var expandPitchBtn = createButton('io-btn expand-link', '一键展开话术 ▼', expandBar);
   function toggleAll(selector, btn, expandText, collapseText){
     var nodes=document.querySelectorAll(selector);
     if(!nodes.length) return;
@@ -1234,8 +1234,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     Array.prototype.forEach.call(nodes, function(n){ n.open=anyClosed; });
     btn.textContent = anyClosed ? collapseText : expandText;
   }
-  expandJdBtn.addEventListener('click', function(){ toggleAll('details.jd-sec', expandJdBtn, '一键展开 JD', '一键收起 JD'); });
-  expandPitchBtn.addEventListener('click', function(){ toggleAll('details.pitch-sec', expandPitchBtn, '一键展开话术', '一键收起话术'); });
+  expandJdBtn.addEventListener('click', function(){ toggleAll('details.jd-sec', expandJdBtn, '一键展开 JD ▼', '一键收起 JD'); });
+  expandPitchBtn.addEventListener('click', function(){ toggleAll('details.pitch-sec', expandPitchBtn, '一键展开话术 ▼', '一键收起话术'); });
   var fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='application/json,.json'; fileInput.style.display='none'; document.body.appendChild(fileInput);
   var formActionsWrap = document.getElementById('formActionsWrap');
   var saveBtn = createButton('save', '保存', formActionsWrap, 'submit');
@@ -1582,7 +1582,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       {label:'待打招呼', count:greet, color:'#ff8a00', prev:total},
       {label:'已投·待回复', count:sent, color:'#2f6bff', prev:greet},
       {label:'面试中', count:interview, color:'#059669', prev:sent},
-      {label:'已Offer', count:offered, color:'#a855f7', prev:interview}
+      {label:'已Offer', count:offered, color:'#c4b5fd', prev:interview}
     ];
     var funnelHtml=funnel.map(function(step, i){
       var w=Math.max(2, Math.round(step.count/total*100)); // 统一以目标岗位为 100% 标尺
