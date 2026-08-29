@@ -315,6 +315,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .sync-modal .status-box{font-size:14px;color:#33415c;background:#f0f7ff;border:1px solid #c9dcff;border-radius:12px;padding:18px 20px;margin-bottom:14px;line-height:1.6;}
   .sync-modal .sync-actions{margin-top:16px;gap:10px;}
   .sync-modal .sync-hint{font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:12px;}
+  .sync-modal .sync-cross{margin-top:10px;background:#f5f9ff;border:1px solid #dbe7ff;border-radius:10px;padding:9px 10px;}
+  .sync-modal .sync-cross .explain{font-size:12px;color:var(--ink);line-height:1.5;}
+  .sync-modal .sync-link-row{display:flex;gap:6px;margin-top:7px;}
+  .sync-modal .sync-link-row .gh-input{flex:1;min-width:0;font-size:12px;padding:7px 8px;background:#fff;border:1px solid #c9dcff;border-radius:8px;color:#33415c;}
+  .sync-modal .sync-link-row .m-ok{flex:0 0 auto;padding:7px 12px;font-size:13px;}
   .sync-modal .sync-actions button{min-height:42px;font-size:15px;}
   .sync-modal .gh-input{padding:11px 12px;font-size:14px;}
   .sync-modal .gh-advanced{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;}
@@ -544,6 +549,13 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <button type="button" class="m-cancel" id="ghCancel">关闭</button>
     </div>
     <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步；此按钮用于手动立即同步（上传本机改动并拉取其他设备最新数据）。</div>
+    <div class="sync-cross" id="syncCross" style="display:none;">
+      <div class="explain" style="margin:8px 0 4px;">📎 <b>跨设备查看</b>：复制下面的链接发给电脑端，打开即自动定位这份备份（电脑端仍需粘贴一次你的令牌）。</div>
+      <div class="sync-link-row">
+        <input id="crossLinkInput" class="gh-input" readonly />
+        <button type="button" class="m-ok" id="copyCrossLink">复制链接</button>
+      </div>
+    </div>
     <div class="gh-advanced" id="ghAdvanced" style="display:none;">
       <button type="button" class="gh-adv-toggle" id="ghAdvToggle">高级选项</button>
       <div class="gh-adv-body" id="ghAdvBody" style="display:none;">
@@ -2108,7 +2120,25 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
+  // 跨设备链接：已连 Gist 时生成「当前页面?gist=备份ID」链接，电脑端打开自动定位备份（仍需粘一次令牌）
+  function updateCrossLink(){
+    var box=document.getElementById('syncCross'); if(!box) return;
+    if(gh.enabled && gh.gistId){
+      var url=location.origin+location.pathname+'?gist='+encodeURIComponent(gh.gistId);
+      var inp=document.getElementById('crossLinkInput'); if(inp) inp.value=url;
+      box.style.display='';
+    } else { box.style.display='none'; }
+  }
+  var copyCrossBtn=document.getElementById('copyCrossLink');
+  if(copyCrossBtn) copyCrossBtn.addEventListener('click',function(){
+    if(!gh.gistId){ ghMsgSet('请先连接 Gist 再生成跨设备链接','#e8a317'); return; }
+    var url=location.origin+location.pathname+'?gist='+encodeURIComponent(gh.gistId);
+    var done=function(){ ghMsgSet('已复制跨设备链接，发给电脑端打开即可自动定位备份','#1bbf72'); };
+    var fallbackCopy=function(t){ var inp=document.getElementById('crossLinkInput'); if(inp){ inp.value=t; inp.select(); } try{ document.execCommand('copy'); done(); }catch(e){ ghMsgSet('复制失败，请长按链接手动复制','#e5484d'); } };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ fallbackCopy(url); }); }
+    else { fallbackCopy(url); }
+  });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } updateCrossLink(); });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
@@ -2117,7 +2147,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghDiscover().then(function(foundId){
       if(foundId){
         gh.gistId=foundId; gh.enabled=true; ghSaveConfig();
-        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); updateCrossLink(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
           .catch(function(e){ ghMsgSet('拉取失败：'+((e&&e.message)||e),'#e5484d'); });
       } else {
         ghMsgSet('未找到已有的云备份','#e8a317');
@@ -2151,7 +2181,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       gh.enabled=true; ghSaveConfig();
       ghMsgSet('连接成功，已同步 '+activeRows().length+' 条','#1bbf72');
       setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush();
-      renderSyncModal();
+      renderSyncModal(); updateCrossLink();
     };
     var fail=function(e){ console.error(e); gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('连接失败：'+info.detail+'（请检查令牌权限或网络后重试）','#e5484d'); };
     ghMsgSet('正在用令牌自动查找你的同步备份…');
