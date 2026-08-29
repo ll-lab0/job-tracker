@@ -160,7 +160,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   /* 卡片 */
   .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 13px 11px;margin-bottom:15px;
     box-shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.05);transition:box-shadow .15s ease,transform .15s ease;}
-  .card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-accent,transparent);opacity:.32;}
+  .card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--status-accent,transparent);opacity:1;}
   .card.dd-open{z-index:20;}
   .card:hover{box-shadow:0 2px 6px rgba(16,24,40,.08),0 8px 22px rgba(47,107,255,.12);transform:translateY(-1px);}
   .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
@@ -651,7 +651,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   var STATUS_LIST=['待打招呼','待投','已投·待回复','不合适','面试中','已拒','已Offer'];
   var BADGE_CLASS={'待打招呼':'b-greet','待投':'b-todo','已投·待回复':'b-sent','不合适':'b-nofit','面试中':'b-interview','已Offer':'b-offer','已拒':'b-reject'};
-  var STATUS_COLOR={'待打招呼':'#c0392b','待投':'#b45309','已投·待回复':'#c2410c','不合适':'#854d0e','面试中':'#047857','已Offer':'#7c3aed','已拒':'#6b7280'};
+  var STATUS_COLOR={'待打招呼':'#fde2e2','待投':'#fef3c7','已投·待回复':'#ffe4d6','不合适':'#fef9c3','面试中':'#d1fae5','已Offer':'#f3e8ff','已拒':'#eef0f3'};
 
   function todayStr(){ return dateStr(); }
   function dateStr(){
