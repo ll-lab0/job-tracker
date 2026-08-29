@@ -543,7 +543,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <button type="button" class="m-ok" id="ghConnect">保存并连接</button>
       <button type="button" class="m-cancel" id="ghCancel">关闭</button>
     </div>
-    <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步；此按钮用于手动立即同步（上传本机改动并拉取其他设备最新数据）。</div>
+    <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步：<b>打开或刷新页面</b>即自动把本机改动上传云端、并拉取其他设备更新；也可随时点「立即同步」手动同步。</div>
     <div class="gh-advanced" id="ghAdvanced" style="display:none;">
       <button type="button" class="gh-adv-toggle" id="ghAdvToggle">高级选项</button>
       <div class="gh-adv-body" id="ghAdvBody" style="display:none;">
@@ -567,7 +567,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         <li><b>JD 自动填充</b>：粘贴 JD 原文自动提取公司、岗位、职责，少手工录入</li>
         <li><b>数据默认存本机浏览器</b>，不联网也照用</li>
       </ul>
-      <div class="status-box" style="font-size:13px;">💡 想跨设备同步？点顶部「云同步」连接你的 GitHub 私有 Gist（<b>数据归你、免费、作者看不到</b>）。不连也完全可用。</div>
+      <div class="status-box" style="font-size:13px;">💡 想跨设备同步？点顶部「云同步」连接你的 GitHub 私有 Gist（<b>数据归你、免费、作者看不到</b>）。不连也完全可用。连接后任意设备打开即自动同步，无需手动操作。</div>
       <div class="modal-actions sync-actions">
         <button type="button" class="m-ok" id="onboardStart">开始使用</button>
         <button type="button" class="m-cancel" id="onboardLater">以后再说</button>
@@ -814,7 +814,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     clearTimeout(pushTimer);
     setSync('同步中…');
     ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success');
+      setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success');
       ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72');
     }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); ghMsgSet(info.title+'：'+info.detail,'#e5484d'); });
   }
@@ -882,7 +882,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
       ghPush(allRows)
         .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
-        .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+        .then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); })
         .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
     }, 800);
   }
@@ -892,7 +892,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     setSync('同步中…');
     ghPush(allRows)
       .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
-      .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+      .then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); })
       .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
   }
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
@@ -938,7 +938,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       var sig=function(){ return activeRows().map(function(r){ return r.id+'|'+(r['更新时间']||'')+'|'+(r._deleted?'D':'')+'|'+(r['投递日期']||'')+'|'+(r['面试日期']||''); }).sort().join(''); };
       var before=sig();
       allRows=mergeByUpdated(allRows, cloud); normalizeRows(allRows); lsSave(allRows);
-      if(before!==sig()){ buildFilters(); render(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }
+      if(before!==sig()){ buildFilters(); render(); setSync('已自动拉取其他设备更新','success'); }
     }).catch(function(){});
   }
   function startAutoPull(){
@@ -1254,7 +1254,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); setSync('同步中…'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
+    else if(gh.enabled){ buildFilters(); render(); setSync('同步中…'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     if(gh.enabled) startAutoPull();
     updateTabs();
@@ -2142,7 +2142,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghDiscover().then(function(foundId){
       if(foundId){
         gh.gistId=foundId; gh.enabled=true; ghSaveConfig(); startAutoPull();
-        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); setSync('已重新连接并拉取云端备份','success'); })
           .catch(function(e){ ghMsgSet('拉取失败：'+((e&&e.message)||e),'#e5484d'); });
       } else {
         ghMsgSet('未找到已有的云备份','#e8a317');
@@ -2165,7 +2165,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghPush(allRows).then(function(){
       return ghPull(true);
     }).then(function(){
-      ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72'); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success');
+      ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72'); setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success');
     }).catch(function(e){ var info=ghErrInfo(e); ghMsgSet(info.title+'：'+info.detail,'#e5484d'); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
   });
   document.getElementById('ghConnect').addEventListener('click',function(){
@@ -2175,7 +2175,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var done=function(){
       gh.enabled=true; ghSaveConfig();
       ghMsgSet('连接成功，已同步 '+activeRows().length+' 条','#1bbf72');
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush(); startAutoPull();
+      setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); schedulePush(); startAutoPull();
       renderSyncModal();
     };
     var fail=function(e){ console.error(e); gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('连接失败：'+info.detail+'（请检查令牌权限或网络后重试）','#e5484d'); };
