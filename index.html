@@ -56,7 +56,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .qa-msg:empty{display:none;}
   .qa-msg.ok{color:#1a8a55;} .qa-msg.err{color:#e5484d;}
   /* 卡片头部收起按钮：标题右侧小图标 */
-  .qa-collapse{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;padding:0;color:#16a34a;background:transparent;border:1px solid #bbf7d0;border-radius:8px;cursor:pointer;}
+  .qa-collapse{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;padding:0;color:#15803d;background:#eafaf1;border:1px solid #86efac;border-radius:8px;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease;}
+  .qa-collapse:hover{background:#dcfce7;border-color:#22c55e;color:#166534;box-shadow:0 2px 8px rgba(22,163,74,.18);}
+  .qa-collapse:active{background:#bbf7d0;}
   .qa-collapse svg{width:18px;height:18px;display:block;}
   .qa-collapse:hover{background:rgba(22,163,74,.08);}
   /* 收起后的绿色圆形悬浮按钮：可拖拽，松手自动贴左/右 */
@@ -70,7 +72,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .qa-modal-head .qa-head-title svg{width:20px;height:20px;}
   .qa-modal-x{background:transparent;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:2px 6px;border-radius:6px;touch-action:manipulation;}
   .qa-modal-x:hover{background:rgba(0,0,0,.05);}
-  .qa-modal .qa-jd{padding:14px 16px;font-size:15px;min-height:140px;border-radius:12px;}
+  .qa-modal .qa-jd{padding:14px 16px;font-size:15px;min-height:190px;border-radius:12px;}
   .qa-modal .qa-actions{margin-top:14px;}
   .qa-modal .qa-btn{min-height:50px;padding:0 28px;font-size:16px;border-radius:12px;}
   .qa-btn-secondary{flex:0 0 auto;background:#fff;color:#16a34a;border:1px solid #bbf7d0;border-radius:12px;min-height:50px;padding:0 24px;font-size:15px;font-weight:700;white-space:nowrap;cursor:pointer;touch-action:manipulation;}
@@ -358,7 +360,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-week span{text-align:center;font-size:12px;font-weight:600;color:#aab2c0;}
   .cal-week span:first-child,.cal-week span:last-child{color:#cf9b9b;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:#f7f9fc;border:1px solid #eef1f6;border-radius:14px;padding:8px;}
-  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:82px;padding:7px 6px;background:#fff;font-size:12px;transition:box-shadow .15s,transform .15s;position:relative;}
+  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:64px;padding:6px 6px;background:#fff;font-size:12px;transition:box-shadow .15s,transform .15s;position:relative;}
   .cal-cell.cal-empty{background:transparent;border:none;min-height:0;padding:0;}
   .cal-cell.cal-has{cursor:pointer;background:linear-gradient(180deg,#f5f9ff,#eef4ff);border-color:#cfe0ff;}
   .cal-cell.cal-has:hover{box-shadow:0 4px 14px rgba(47,107,255,.18);transform:translateY(-1px);}
@@ -1787,9 +1789,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var qaCollapse=document.getElementById('qaCollapse');
   function applyQAVisibility(){
     var dash = viewMode==='dash';
+    var cal = viewMode==='calendar';
     var qaEl=document.getElementById('quickAdd');
-    if(qaEl) qaEl.style.display = (dash||qaCollapsed) ? 'none' : '';
-    if(qaFab) qaFab.style.display = (dash||!qaCollapsed) ? 'none' : 'flex';
+    if(qaEl) qaEl.style.display = (dash||cal||qaCollapsed) ? 'none' : '';
+    if(qaFab) qaFab.style.display = (dash||cal||!qaCollapsed) ? 'none' : 'flex';
   }
   if(qaCollapse) qaCollapse.addEventListener('click', function(){
     var qaEl=document.getElementById('quickAdd');
