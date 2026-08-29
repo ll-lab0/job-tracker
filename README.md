@@ -21,7 +21,7 @@
 2. **在线 Demo（匿名 · 无需登录）**：https://ll-lab0.github.io/job-tracker （GitHub Pages，永久免费；国内访问偶慢，可下载文件本地跑）
 3. **自部署**：Fork 本仓库，开启 GitHub Pages 或部署到任意静态托管（Vercel / Netlify / EdgeOne 等）。
 
-> 入口说明：上面「在线 Demo」是**匿名公开入口，无需登录**即可打开使用。WorkBuddy 应用市场版本（规划中）需登录 WorkBuddy 账号后一键克隆，数据仍走你自己的 Gist；它不替代上面的匿名 GitHub Pages 入口。
+> 入口说明：上方「在线 Demo」是**匿名公开入口，无需登录**即可打开使用，也是当前唯一提供的在线入口。
 
 ## 🔗 跨设备同步（GitHub 私有 Gist）
 
