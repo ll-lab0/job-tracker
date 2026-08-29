@@ -378,7 +378,24 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-dot-deliver{background:#16824f;}
   .cal-dot-interview{background:#cf6f0a;}
   .cal-note{font-size:12px;color:#9aa3af;margin:10px 2px;}
-  .cal-detail-modal{max-width:440px;}
+  .cal-cell.cal-active{background:linear-gradient(180deg,#2f6bff,#4c84ff)!important;border-color:#2f6bff!important;color:#fff!important;box-shadow:0 4px 14px rgba(47,107,255,.28)!important;}
+  .cal-cell.cal-active .cal-date{color:#fff!important;}
+  .cal-cell.cal-active .cal-badge.cal-deliver{background:rgba(255,255,255,.22)!important;color:#fff!important;}
+  .cal-cell.cal-active .cal-badge.cal-interview{background:rgba(255,255,255,.22)!important;color:#fff!important;}
+  .cal-detail-inline{grid-column:1 / -1;background:linear-gradient(180deg,#f0f6ff,#e6efff);border:1px solid #c2d8ff;border-radius:14px;padding:12px 14px;margin:2px 0 8px;box-shadow:0 6px 20px rgba(47,107,255,.12);animation:calFade .18s ease-out;}
+  @keyframes calFade{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  .cal-detail-inline-title{font-size:14px;font-weight:700;color:#1f2a44;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .cal-detail-inline-title::before{content:'';width:6px;height:6px;border-radius:50%;background:#2f6bff;}
+  .cal-detail-inline-sec{margin:8px 0;}
+  .cal-detail-inline-sec h4{margin:0 0 5px;font-size:12px;color:#5a6c8a;font-weight:600;}
+  .cal-detail-inline-row{font-size:13px;padding:6px 0;border-bottom:1px dashed #d4e2fa;color:#33415c;display:flex;align-items:center;gap:8px;}
+  .cal-detail-inline-row:last-child{border-bottom:none;}
+  .cal-detail-inline-row b{color:#1f2a44;font-weight:600;}
+  .cal-detail-inline-st{font-size:11px;color:#7e8ba3;background:#fff;border-radius:6px;padding:1px 6px;border:1px solid #e3e8f0;}
+  .cal-detail-inline-empty{color:#7e8ba3;padding:10px 0;font-size:13px;}
+  .cal-detail-inline-close{position:absolute;top:8px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(47,107,255,.1);color:#2f6bff;font-size:16px;line-height:26px;text-align:center;cursor:pointer;transition:background .15s;}
+  .cal-detail-inline-close:hover{background:rgba(47,107,255,.2);}
+  .cal-detail-modal{max-width:440px;display:none;}
   .cal-detail-sec{margin:8px 0;}
   .cal-detail-sec h4{margin:6px 0 4px;font-size:14px;color:#1f2a44;}
   .cal-detail-row{font-size:13px;padding:5px 0;border-bottom:1px dashed #eef1f6;color:#33415c;}
@@ -1456,29 +1473,40 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var todayBtn=document.getElementById('calToday'); if(todayBtn) todayBtn.onclick=function(){ var t=new Date(); calState.year=t.getFullYear(); calState.month=t.getMonth(); renderCalendar(); };
     Array.prototype.forEach.call(cv.querySelectorAll('.cal-cell.cal-has'), function(cell){ cell.onclick=function(){ openCalDetail(cell.getAttribute('data-key')); }; });
   }
+  function closeCalDetail(){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    var old=cv.querySelector('.cal-detail-inline'); if(old) old.remove();
+    Array.prototype.forEach.call(cv.querySelectorAll('.cal-cell.cal-active'), function(c){ c.classList.remove('cal-active'); });
+  }
   function openCalDetail(key){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    var cell=cv.querySelector('.cal-cell[data-key="'+key+'"]'); if(!cell) return;
+    var old=cv.querySelector('.cal-detail-inline');
+    if(old && old.getAttribute('data-detail-key')===key){ closeCalDetail(); return; }
+    closeCalDetail();
+    cell.classList.add('cal-active');
     var rows=activeRows();
     var deliver=rows.filter(function(r){return (r['投递日期']||'').trim()===key;});
     var interview=rows.filter(function(r){return (r['面试日期']||'').trim()===key;});
-    var html='<div class="modal-title">'+key+' 明细</div>';
+    var html='<div class="cal-detail-inline" data-detail-key="'+key+'" style="position:relative;">';
+    html+='<button class="cal-detail-inline-close" aria-label="关闭" onclick="closeCalDetail()">×</button>';
+    html+='<div class="cal-detail-inline-title">'+key+' 求职行程</div>';
     if(deliver.length){
-      html+='<div class="cal-detail-sec"><h4>投递（'+deliver.length+' 份）</h4>';
-      deliver.forEach(function(r){ html+='<div class="cal-detail-row"><b>'+(r['公司']||'未填公司')+'</b> · '+(r['职位']||'')+' <span class="cal-detail-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='<div class="cal-detail-inline-sec"><h4>投递（'+deliver.length+' 份）</h4>';
+      deliver.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
       html+='</div>';
     }
     if(interview.length){
-      html+='<div class="cal-detail-sec"><h4>面试（'+interview.length+' 家）</h4>';
-      interview.forEach(function(r){ html+='<div class="cal-detail-row"><b>'+(r['公司']||'未填公司')+'</b> · '+(r['职位']||'')+' <span class="cal-detail-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='<div class="cal-detail-inline-sec"><h4>面试（'+interview.length+' 家）</h4>';
+      interview.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
       html+='</div>';
     }
-    if(!deliver.length&&!interview.length){ html+='<div class="cal-detail-empty">这一天没有投递 / 面试记录</div>'; }
-    html+='<div class="modal-actions"><button type="button" class="m-cancel" id="calDetailClose">关闭</button></div>';
-    var modal=document.getElementById('calDetailModal');
-    if(!modal){ modal=document.createElement('div'); modal.className='modal-mask'; modal.id='calDetailModal'; document.body.appendChild(modal); }
-    modal.innerHTML='<div class="modal cal-detail-modal">'+html+'</div>';
-    modal.classList.add('show');
-    var closeBtn=document.getElementById('calDetailClose'); if(closeBtn) closeBtn.onclick=function(){ modal.classList.remove('show'); };
-    modal.onclick=function(e){ if(e.target===modal) modal.classList.remove('show'); };
+    if(!deliver.length&&!interview.length){ html+='<div class="cal-detail-inline-empty">这一天没有投递 / 面试记录</div>'; }
+    html+='</div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html;
+    var detail=wrap.firstChild;
+    if(cell.nextSibling){ cell.parentNode.insertBefore(detail, cell.nextSibling); } else { cell.parentNode.appendChild(detail); }
+    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
 
   function renderDashboard(){
