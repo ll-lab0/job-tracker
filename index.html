@@ -360,8 +360,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-week span{text-align:center;font-size:12px;font-weight:600;color:#aab2c0;}
   .cal-week span:first-child,.cal-week span:last-child{color:#cf9b9b;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:#f7f9fc;border:1px solid #eef1f6;border-radius:14px;padding:8px;}
-  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:64px;padding:6px 6px;background:#fff;font-size:12px;transition:box-shadow .15s,transform .15s;position:relative;}
-  .cal-cell.cal-empty{background:transparent;border:none;min-height:0;padding:0;}
+  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:56px;max-height:88px;padding:5px 5px;background:#fff;font-size:12px;transition:box-shadow .15s,transform .15s;position:relative;overflow:hidden;}
+  .cal-cell.cal-empty{background:transparent;border:none;min-height:0;max-height:none;padding:0;}
   .cal-cell.cal-has{cursor:pointer;background:linear-gradient(180deg,#f5f9ff,#eef4ff);border-color:#cfe0ff;}
   .cal-cell.cal-has:hover{box-shadow:0 4px 14px rgba(47,107,255,.18);transform:translateY(-1px);}
   .cal-cell.cal-has:active{transform:translateY(0);}
@@ -369,7 +369,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-cell.cal-today-cell.cal-has::after{content:'今天';position:absolute;top:5px;right:6px;font-size:10px;color:#2f6bff;font-weight:700;}
   .cal-date{font-size:13px;color:#33415c;font-weight:600;margin-bottom:4px;}
   .cal-cell.cal-today-cell .cal-date{color:#2f6bff;}
-  .cal-badge{font-size:11px;line-height:1.3;margin-top:4px;border-radius:7px;padding:2px 6px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-badge{font-size:11px;line-height:1.35;margin-top:3px;border-radius:7px;padding:2px 6px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .cal-badge.cal-deliver{background:#e7f7ee;color:#16824f;font-weight:600;}
   .cal-badge.cal-interview{background:#fff1e0;color:#cf6f0a;font-weight:600;}
   .cal-legend{display:flex;gap:16px;align-items:center;margin:14px 4px 2px;font-size:12px;color:#6b7280;}
@@ -837,7 +837,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         else { winner = ex; }
         map[r.id]=winner; return;
       }
-      if((r['更新时间']||'') >= (ex['更新时间']||'')) map[r.id]=r;
+      // 时间戳相等时保留已存在的记录（通常是本地），避免同一天内云端旧记录覆盖本地新字段（如投递/面试日期）
+      if((r['更新时间']||'') > (ex['更新时间']||'')) map[r.id]=r;
     }
     (local||[]).forEach(put); (cloud||[]).forEach(put);
     return Object.keys(map).map(function(k){ return map[k]; });
@@ -1332,7 +1333,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(searchTerm){ var t=searchTerm.toLowerCase(); rows=rows.filter(function(r){ return (r['公司']||'').toLowerCase().indexOf(t)>=0 || (r['职位']||'').toLowerCase().indexOf(t)>=0; }); }
 
     var exEl=document.querySelector('.expandbar');
-    if(exEl) exEl.style.display = (viewMode==='dash' || !rows.length) ? 'none' : '';
+    if(exEl) exEl.style.display = (viewMode!=='list' || !rows.length) ? 'none' : '';
 
     var list=document.getElementById('list');
     if(!rows.length){
