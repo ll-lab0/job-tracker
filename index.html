@@ -346,6 +346,31 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     .sync-modal{max-height:calc(100dvh - 80px);}
     #ghModal.modal-mask{align-items:center;}
   }
+  /* 求职日历 */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 2px 10px;}
+  .cal-title{font-size:16px;font-weight:700;color:#1f2a44;}
+  .cal-nav{border:1px solid #dbe2ef;background:#fff;color:#33415c;border-radius:8px;min-width:34px;height:32px;padding:0 10px;font-size:15px;cursor:pointer;}
+  .cal-nav:hover{background:#f0f5ff;}
+  .cal-nav.cal-today{font-size:13px;min-width:48px;}
+  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .cal-week span{text-align:center;font-size:12px;color:#9aa3af;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-cell{border:1px solid #eef1f6;border-radius:10px;min-height:76px;padding:6px 5px;background:#fff;font-size:12px;}
+  .cal-cell.cal-empty{background:transparent;border:none;}
+  .cal-cell.cal-has{cursor:pointer;background:#f5f9ff;border-color:#c2d8ff;}
+  .cal-cell.cal-has:hover{box-shadow:0 2px 10px rgba(47,107,255,.14);}
+  .cal-cell.cal-today-cell{border-color:#2f6bff;}
+  .cal-date{font-size:13px;color:#33415c;font-weight:600;margin-bottom:2px;}
+  .cal-badge{font-size:11px;line-height:1.35;margin-top:3px;border-radius:6px;padding:1px 5px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .cal-badge.cal-deliver{background:#eafaf1;color:#1a8a55;}
+  .cal-badge.cal-interview{background:#fff3e6;color:#d9720a;margin-right:3px;}
+  .cal-note{font-size:12px;color:#9aa3af;margin:10px 2px;}
+  .cal-detail-modal{max-width:440px;}
+  .cal-detail-sec{margin:8px 0;}
+  .cal-detail-sec h4{margin:6px 0 4px;font-size:14px;color:#1f2a44;}
+  .cal-detail-row{font-size:13px;padding:5px 0;border-bottom:1px dashed #eef1f6;color:#33415c;}
+  .cal-detail-st{font-size:11px;color:#9aa3af;margin-left:4px;}
+  .cal-detail-empty{color:#9aa3af;padding:8px 0;}
 </style>
 </head>
 <body>
@@ -379,6 +404,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     <button class="tab-btn" data-view="dash">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <span>求职复盘</span>
+    </button>
+    <button class="tab-btn" data-view="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>求职日历</span>
     </button>
   </div>
   <div class="tab-panel" id="tabPanel">
@@ -441,6 +470,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         <label>投递状态</label>
         <div class="status-dd form-status-dd" id="formStatusDd"></div>
         <input type="hidden" name="status" id="formStatusInput">
+        <label>投递日期（选填）</label>
+        <input type="date" name="deliverDate" placeholder="实际投递当天">
+        <label>面试日期（选填）</label>
+        <input type="date" name="interviewDate" placeholder="面试安排当天">
         <label>打招呼话术</label>
         <textarea name="pitch" placeholder="粘贴你的打招呼话术，随时可改"></textarea>
         <div class="form-actions" id="formActionsWrap"></div>
@@ -450,6 +483,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   <div id="list"></div>
   <div id="dashView" style="display:none;"></div>
+  <div id="calendarView" style="display:none;"></div>
   </div>
   <div class="hint">未连接 GitHub 时数据只存本机浏览器；连接后自动跨设备同步。</div>
 </div>
@@ -1324,20 +1358,96 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // ===== 数据看板（回顾 / 看板）=====
   function setView(){
     var dash = viewMode==='dash';
-    var hide = dash ? 'none' : '';
-    var todoEl=document.querySelector('.todo'); if(todoEl) todoEl.style.display=hide;
-    var tbEl=document.querySelector('.toolbar'); if(tbEl) tbEl.style.display=hide;
-    var flEl=document.querySelector('.filters'); if(flEl) flEl.style.display=hide;
-    var listEl=document.getElementById('list'); if(listEl) listEl.style.display=hide;
-    var hintEl=document.querySelector('.hint'); if(hintEl) hintEl.style.display=hide;
-    var exEl=document.querySelector('.expandbar'); if(exEl && dash) exEl.style.display='none';
+    var cal = viewMode==='calendar';
+    var hideList = (dash||cal) ? 'none' : '';
+    var todoEl=document.querySelector('.todo'); if(todoEl) todoEl.style.display=hideList;
+    var tbEl=document.querySelector('.toolbar'); if(tbEl) tbEl.style.display=hideList;
+    var flEl=document.querySelector('.filters'); if(flEl) flEl.style.display=hideList;
+    var listEl=document.getElementById('list'); if(listEl) listEl.style.display=hideList;
+    var hintEl=document.querySelector('.hint'); if(hintEl) hintEl.style.display=hideList;
+    var exEl=document.querySelector('.expandbar'); if(exEl) exEl.style.display='none';
     applyQAVisibility();
     var dv=document.getElementById('dashView'); if(dv) dv.style.display= dash?'block':'none';
+    var cv=document.getElementById('calendarView'); if(cv) cv.style.display= cal?'block':'none';
     updateTabs();
     if(dash && dv) renderDashboard();
-    if(!dash) render();
+    if(cal && cv) renderCalendar();
+    if(!dash && !cal) render();
     try{ setScrollY(0); }catch(e){}
   }
+
+  // ===== 求职日历 =====
+  var calState={year:0, month:0};
+  function calPad(n){ return (n<10?'0':'')+n; }
+  function renderCalendar(){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    if(!calState.year){ var t=new Date(); calState.year=t.getFullYear(); calState.month=t.getMonth(); }
+    var rows=activeRows();
+    var map={};
+    rows.forEach(function(r){
+      var d=(r['投递日期']||'').trim();
+      if(d){ if(!map[d]) map[d]={deliver:[],interview:[]}; map[d].deliver.push(r); }
+      var iv=(r['面试日期']||'').trim();
+      if(iv){ if(!map[iv]) map[iv]={deliver:[],interview:[]}; map[iv].interview.push(r); }
+    });
+    var y=calState.year, m=calState.month;
+    var first=new Date(y,m,1);
+    var startDay=first.getDay();
+    var daysInMonth=new Date(y,m+1,0).getDate();
+    var cells=[];
+    for(var i=0;i<startDay;i++) cells.push(null);
+    for(var d=1;d<=daysInMonth;d++){ var ds=y+'-'+calPad(m+1)+'-'+calPad(d); cells.push({d:d, key:ds, info:map[ds]||null}); }
+    var html='';
+    html+='<div class="cal-head"><button class="cal-nav" id="calPrev">‹</button><div class="cal-title">'+y+'年 '+(m+1)+'月</div><button class="cal-nav" id="calNext">›</button><button class="cal-nav cal-today" id="calToday">今天</button></div>';
+    html+='<div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>';
+    html+='<div class="cal-grid">';
+    cells.forEach(function(c){
+      if(c===null){ html+='<div class="cal-cell cal-empty"></div>'; return; }
+      var has=c.info;
+      var dn=has?has.deliver.length:0;
+      var inN=has?has.interview.length:0;
+      var cls='cal-cell'+(dn||inN?' cal-has':'');
+      var t=new Date(); var isToday=(t.getFullYear()===y&&t.getMonth()===m&&t.getDate()===c.d);
+      if(isToday) cls+=' cal-today-cell';
+      html+='<div class="'+cls+'" data-key="'+c.key+'">';
+      html+='<div class="cal-date">'+c.d+'</div>';
+      if(dn){ html+='<div class="cal-badge cal-deliver">投 '+dn+'</div>'; }
+      if(inN){ has.interview.forEach(function(r){ html+='<div class="cal-badge cal-interview" title="'+(r['公司']||'')+'">面 '+(r['公司']||'未填公司')+'</div>'; }); }
+      html+='</div>';
+    });
+    html+='</div>';
+    html+='<div class="cal-note">仅显示有投递 / 面试日期的日期；点某天看当天明细。历史记录可在「编辑」里补填日期。</div>';
+    cv.innerHTML=html;
+    var prev=document.getElementById('calPrev'); if(prev) prev.onclick=function(){ calState.month--; if(calState.month<0){calState.month=11;calState.year--;} renderCalendar(); };
+    var next=document.getElementById('calNext'); if(next) next.onclick=function(){ calState.month++; if(calState.month>11){calState.month=0;calState.year++;} renderCalendar(); };
+    var todayBtn=document.getElementById('calToday'); if(todayBtn) todayBtn.onclick=function(){ var t=new Date(); calState.year=t.getFullYear(); calState.month=t.getMonth(); renderCalendar(); };
+    Array.prototype.forEach.call(cv.querySelectorAll('.cal-cell.cal-has'), function(cell){ cell.onclick=function(){ openCalDetail(cell.getAttribute('data-key')); }; });
+  }
+  function openCalDetail(key){
+    var rows=activeRows();
+    var deliver=rows.filter(function(r){return (r['投递日期']||'').trim()===key;});
+    var interview=rows.filter(function(r){return (r['面试日期']||'').trim()===key;});
+    var html='<div class="modal-title">'+key+' 明细</div>';
+    if(deliver.length){
+      html+='<div class="cal-detail-sec"><h4>投递（'+deliver.length+' 份）</h4>';
+      deliver.forEach(function(r){ html+='<div class="cal-detail-row"><b>'+(r['公司']||'未填公司')+'</b> · '+(r['职位']||'')+' <span class="cal-detail-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='</div>';
+    }
+    if(interview.length){
+      html+='<div class="cal-detail-sec"><h4>面试（'+interview.length+' 家）</h4>';
+      interview.forEach(function(r){ html+='<div class="cal-detail-row"><b>'+(r['公司']||'未填公司')+'</b> · '+(r['职位']||'')+' <span class="cal-detail-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='</div>';
+    }
+    if(!deliver.length&&!interview.length){ html+='<div class="cal-detail-empty">这一天没有投递 / 面试记录</div>'; }
+    html+='<div class="modal-actions"><button type="button" class="m-cancel" id="calDetailClose">关闭</button></div>';
+    var modal=document.getElementById('calDetailModal');
+    if(!modal){ modal=document.createElement('div'); modal.className='modal-mask'; modal.id='calDetailModal'; document.body.appendChild(modal); }
+    modal.innerHTML='<div class="modal cal-detail-modal">'+html+'</div>';
+    modal.classList.add('show');
+    var closeBtn=document.getElementById('calDetailClose'); if(closeBtn) closeBtn.onclick=function(){ modal.classList.remove('show'); };
+    modal.onclick=function(e){ if(e.target===modal) modal.classList.remove('show'); };
+  }
+
   function renderDashboard(){
     var rows=activeRows();
     if(periodFilter){ rows=rows.filter(function(r){ return rowMatchesPeriod(r, periodFilter); }); }
@@ -1526,6 +1636,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(formStatusDd) setupStatusDropdown(formStatusDd,st,function(val){ if(formStatusInput) formStatusInput.value=val; clearTimeout(cacheTimer); cacheTimer=setTimeout(cacheSave,300); });
     form.pitch.value=r['打招呼话术']||'';
     form.jd.value=r['JD原文']||'';
+    form.deliverDate.value=r['投递日期']||'';
+    form.interviewDate.value=r['面试日期']||'';
     document.getElementById('formTitle').textContent='编辑岗位';
     if(jdHint) jdHint.style.display='none';
     jobFormModal.classList.add('show');
@@ -1764,6 +1876,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     rec['地点']=form.location.value.trim();
     rec['打招呼话术']=form.pitch.value;
     rec['JD原文']=form.jd.value;
+    rec['投递日期']=form.deliverDate.value||'';
+    rec['面试日期']=form.interviewDate.value||'';
     if(!editingId){ rec['录入时间']=todayStr(); }
     rec['更新时间']=todayStr();
     var _pitch=form.pitch.value.trim();
