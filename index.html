@@ -1147,7 +1147,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); ghPull(false); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取
+    else if(gh.enabled){ buildFilters(); render(); ghPull(false).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(){}); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取；拉取成功置绿，失败由 ghPull 内部置红
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     updateTabs();
     requestAnimationFrame(moveIndicator);
@@ -1929,7 +1929,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ ghPull(); } });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ ghPull().then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(){}); } });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
@@ -1938,7 +1938,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghDiscover().then(function(foundId){
       if(foundId){
         gh.gistId=foundId; gh.enabled=true; ghSaveConfig();
-        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); })
+        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
           .catch(function(e){ ghMsgSet('拉取失败：'+((e&&e.message)||e),'#e5484d'); });
       } else {
         ghMsgSet('未找到已有的云备份','#e8a317');
