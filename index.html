@@ -357,7 +357,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-nav{border:1px solid #e3e8f0;background:#fff;color:#33415c;border-radius:9px;min-width:36px;height:34px;padding:0 12px;font-size:16px;cursor:pointer;transition:background .15s,box-shadow .15s;}
   .cal-nav:hover{background:#f0f5ff;box-shadow:0 1px 4px rgba(47,107,255,.12);}
   .cal-nav:active{transform:scale(.96);}
-  .cal-nav.cal-today{font-size:13px;min-width:52px;color:#2f6bff;border-color:#c2d8ff;}
+  .cal-nav.cal-today{font-size:13px;min-width:52px;color:#33415c;border-color:#e3e8f0;background:#fff;}
+  .cal-nav.cal-today:hover{background:#f0f5ff;color:#2f6bff;border-color:#c2d8ff;box-shadow:0 1px 4px rgba(47,107,255,.12);}
+  .cal-nav.cal-today:active{background:#e6efff;transform:scale(.96);}
+  .cal-nav.cal-today:focus{color:#33415c;border-color:#e3e8f0;background:#fff;outline:none;}
+  .cal-nav.cal-today:focus-visible{outline:2px solid #2f6bff;outline-offset:2px;}
   .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:6px;}
   .cal-week span{text-align:center;font-size:12px;font-weight:600;color:#aab2c0;padding:4px 0;}
   .cal-week span:first-child,.cal-week span:last-child{color:#cf9b9b;}
