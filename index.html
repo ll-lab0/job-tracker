@@ -382,19 +382,17 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-cell.cal-active .cal-today-label{background:#fff!important;color:#2f6bff!important;}
   .cal-cell.cal-active .cal-badge.cal-deliver{background:rgba(255,255,255,.22)!important;color:#fff!important;}
   .cal-cell.cal-active .cal-badge.cal-interview{background:rgba(255,255,255,.22)!important;color:#fff!important;}
-  .cal-detail-inline{grid-column:1 / -1;background:linear-gradient(180deg,#f0f6ff,#e6efff);border:1px solid #c2d8ff;border-radius:14px;padding:12px 14px;margin:2px 0 8px;box-shadow:0 6px 20px rgba(47,107,255,.12);animation:calFade .18s ease-out;}
+  .cal-detail-inline{grid-column:1 / -1;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;margin:2px 0 8px;animation:calFade .18s ease-out;}
   @keyframes calFade{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
   .cal-detail-inline-title{font-size:14px;font-weight:700;color:#1f2a44;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-  .cal-detail-inline-title::before{content:'';width:6px;height:6px;border-radius:50%;background:#2f6bff;}
+  .cal-detail-inline-title::before{content:'';width:6px;height:6px;border-radius:50%;background:#6b7280;}
   .cal-detail-inline-sec{margin:8px 0;}
-  .cal-detail-inline-sec h4{margin:0 0 5px;font-size:12px;color:#5a6c8a;font-weight:600;}
-  .cal-detail-inline-row{font-size:13px;padding:6px 0;border-bottom:1px dashed #d4e2fa;color:#33415c;display:flex;align-items:center;gap:8px;}
+  .cal-detail-inline-sec h4{margin:0 0 5px;font-size:12px;color:#6b7280;font-weight:600;}
+  .cal-detail-inline-row{font-size:13px;padding:6px 0;border-bottom:1px dashed #e5e7eb;color:#374151;display:flex;align-items:center;gap:8px;}
   .cal-detail-inline-row:last-child{border-bottom:none;}
-  .cal-detail-inline-row b{color:#1f2a44;font-weight:600;}
-  .cal-detail-inline-st{font-size:11px;color:#7e8ba3;background:#fff;border-radius:6px;padding:1px 6px;border:1px solid #e3e8f0;}
-  .cal-detail-inline-empty{color:#7e8ba3;padding:10px 0;font-size:13px;}
-  .cal-detail-inline-close{position:absolute;top:8px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(47,107,255,.1);color:#2f6bff;font-size:16px;line-height:26px;text-align:center;cursor:pointer;transition:background .15s;}
-  .cal-detail-inline-close:hover{background:rgba(47,107,255,.2);}
+  .cal-detail-inline-row b{color:#111827;font-weight:600;}
+  .cal-detail-inline-st{font-size:11px;color:#6b7280;padding:0;}
+  .cal-detail-inline-empty{color:#6b7280;padding:10px 0;font-size:13px;}
   .cal-detail-modal{max-width:440px;display:none;}
   .cal-detail-sec{margin:8px 0;}
   .cal-detail-sec h4{margin:6px 0 4px;font-size:14px;color:#1f2a44;}
@@ -1516,8 +1514,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var rows=activeRows();
     var deliver=rows.filter(function(r){return (r['投递日期']||'').trim()===key;});
     var interview=rows.filter(function(r){return (r['面试日期']||'').trim()===key;});
-    var html='<div class="cal-detail-inline" data-detail-key="'+key+'" style="position:relative;">';
-    html+='<button class="cal-detail-inline-close" aria-label="关闭" onclick="closeCalDetail()">×</button>';
+    var html='<div class="cal-detail-inline" data-detail-key="'+key+'">';
     html+='<div class="cal-detail-inline-title">'+key+' 求职行程</div>';
     if(deliver.length){
       html+='<div class="cal-detail-inline-sec"><h4>投递（'+deliver.length+' 份）</h4>';
