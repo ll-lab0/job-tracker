@@ -371,9 +371,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-cell.cal-has{cursor:pointer;background:#f5f9ff;border-color:#dce7ff;}
   .cal-cell.cal-has:hover{background:#eef4ff;}
   .cal-cell.cal-today-cell{background:#fff;border-color:#2f6bff;box-shadow:inset 0 0 0 1px #2f6bff;z-index:1;}
-  .cal-date{font-size:12px;color:#33415c;font-weight:600;margin-bottom:3px;display:flex;align-items:center;justify-content:center;position:relative;}
+  .cal-date{font-size:12px;color:#33415c;font-weight:600;margin-bottom:3px;display:flex;align-items:center;justify-content:center;position:relative;gap:3px;}
   .cal-cell.cal-today-cell .cal-date{color:#2f6bff;}
-  .cal-today-label{font-size:9px;color:#fff;background:#2f6bff;border-radius:4px;padding:1px 3px;font-weight:700;line-height:1;position:absolute;top:0;right:0;}
+  .cal-today-label{font-size:9px;color:#fff;background:#2f6bff;border-radius:4px;padding:1px 3px;font-weight:700;line-height:1;flex:none;}
   .cal-badge{font-size:10px;line-height:1.2;margin-top:2px;border-radius:5px;padding:2px 4px;display:block;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-width:100%;}
   .cal-badge.cal-deliver{background:#e7f7ee;color:#16824f;font-weight:600;}
   .cal-badge.cal-interview{background:#fff1e0;color:#cf6f0a;font-weight:600;}
@@ -1490,7 +1490,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       var t=new Date(); var isToday=(t.getFullYear()===y&&t.getMonth()===m&&t.getDate()===c.d);
       if(isToday) cls+=' cal-today-cell';
       html+='<div class="'+cls+'" data-key="'+c.key+'">';
-      html+='<div class="cal-date"><span>'+c.d+'</span>'+(isToday?'<span class="cal-today-label">今</span>':'')+'</div>';
+      html+='<div class="cal-date">'+(isToday?'<span class="cal-today-label">今</span>':'')+'<span>'+c.d+'</span></div>';
       if(dn){ html+='<div class="cal-badge cal-deliver" title="投递 '+dn+' 份">投 '+dn+'</div>'; }
       if(inN){ html+='<div class="cal-badge cal-interview" title="面试 '+inN+' 家">面 '+inN+'</div>'; }
       html+='</div>';
