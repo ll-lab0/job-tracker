@@ -488,6 +488,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       </div>
     </div>
     <div id="ghMsg" class="gh-msg"></div>
+    <button type="button" id="syncRetry" class="m-secondary" style="display:none;margin-top:8px;border:1px solid #e5484d;color:#e5484d;">重试同步</button>
   </div>
 </div>
 
@@ -673,7 +674,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var gh={ token:'', gistId:'', enabled:false };
   var pushTimer=null;
 
-  function setSync(t){ var el=document.getElementById('syncStatus'); if(el) el.textContent=t; }
+  function setSync(t, type){
+    var el=document.getElementById('syncStatus');
+    if(el){ el.textContent=t||''; }
+    if(el){ el.style.color = type==='error' ? '#e5484d' : type==='success' ? '#1bbf72' : type==='warn' ? '#e8a317' : 'var(--sub)'; }
+    var rb=document.getElementById('syncRetry');
+    // 只有「已连接且失败」才显示重试：未连接时重试无效（需先填令牌）
+    if(rb) rb.style.display = (type==='error' && gh.enabled) ? '' : 'none';
+  }
   function setCookie(name, value, days){
     try{ var d=new Date(); d.setTime(d.getTime()+days*86400000); document.cookie=name+'='+encodeURIComponent(value||'')+';expires='+d.toUTCString()+';path=/;SameSite=Lax;Secure'; }catch(e){}
   }
@@ -707,8 +715,26 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     return fetch('https://api.github.com'+path, opt).then(function(r){
       if(to) clearTimeout(to);
       touchGhCookies(); // 每次成功请求刷新 cookie 时间戳，对抗 iOS ITP 7 天清理
-      return r.json().then(function(j){ if(!r.ok) throw new Error((j&&j.message)||('HTTP '+r.status)); return j; });
+      return r.json().then(function(j){ if(!r.ok){ var err=new Error((j&&j.message)||('HTTP '+r.status)); err.status=r.status; if(j&&j.message&&/rate limit/i.test(j.message)) err.rateLimited=true; throw err; } return j; });
     }).catch(function(e){ if(to) clearTimeout(to); if(ctrl && ctrl.signal && ctrl.signal.aborted) throw new Error('请求超时（20秒），请检查网络或令牌权限'); throw e; });
+  }
+  // 将同步错误分类为可读提示（令牌 / 网络 / 配额），用于状态条与失败提示
+  function ghErrInfo(e){
+    var msg=(e&&e.message)||''; var st=e&&e.status;
+    if(st===401||st===403||/bad credentials|not found|permission/i.test(msg)) return {title:'令牌无效或权限不足', detail:'请检查令牌是否勾选 gist 权限、是否已过期', type:'error'};
+    if(st===429||e.rateLimited||/rate limit|secondary rate/i.test(msg)) return {title:'Gist 同步受限', detail:'GitHub 频率/配额限制，请稍后重试', type:'error'};
+    if(/超时|abort|failed to fetch|networkerror|network request failed/i.test(msg)) return {title:'网络异常', detail:'请检查网络后重试', type:'error'};
+    return {title:'同步失败', detail: msg||'未知错误', type:'error'};
+  }
+  // 重试：重新拉取云端并以 updated 合并（不强制覆盖本机，安全），再推本机全量
+  function ghRetrySync(){
+    if(!gh.enabled) return;
+    clearTimeout(pushTimer);
+    setSync('同步中…');
+    ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){
+      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success');
+      ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72');
+    }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); ghMsgSet(info.title+'：'+info.detail,'#e5484d'); });
   }
   function ghFetch(){
     if(!gh.gistId) return Promise.resolve(null);
@@ -764,7 +790,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     pushTimer=setTimeout(function(){
       setSync('同步中…');
       // 先拉后推：先 ghPull(false) 逐条按 updated 合并云端（删除优先），再 ghPush 本机全量；任一方都不会被单方面覆盖
-      ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发'); }).catch(function(e){ console.error(e); setSync('同步失败'); });
+      ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
     }, 800);
   }
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
@@ -779,7 +805,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         lsSave(allRows);
       }
       setSync('当前已自动同步 · 自动云端备份，无需手动触发');
-    }).catch(function(e){ console.error(e); setSync('未连接'); })
+    }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); })
     .then(function(){ buildFilters(); render(); });
   }
   // 关闭/刷新页面兜底推送：用 keepalive fetch，页面卸载也能把本地改动送出（防"刚改完就强关"丢失）
@@ -1889,6 +1915,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
   syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ ghPull(); } });
+  var syncRetryBtn=document.getElementById('syncRetry');
+  if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
     if(!gh.token){ ghMsgSet('请先填写令牌','#e5484d'); return; }
     ghMsgSet('正在用令牌重新查找备份…');
@@ -1918,8 +1946,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghPush(allRows).then(function(){
       return ghPull(true);
     }).then(function(){
-      ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72'); setSync('当前已自动同步 · 自动云端备份，无需手动触发');
-    }).catch(function(e){ ghMsgSet('同步失败：'+((e&&e.message)||e),'#e5484d'); });
+      ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72'); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success');
+    }).catch(function(e){ var info=ghErrInfo(e); ghMsgSet(info.title+'：'+info.detail,'#e5484d'); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
   });
   document.getElementById('ghConnect').addEventListener('click',function(){
     var t=document.getElementById('ghToken').value.trim();
@@ -1928,10 +1956,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var done=function(){
       gh.enabled=true; ghSaveConfig();
       ghMsgSet('连接成功，已同步 '+activeRows().length+' 条','#1bbf72');
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发'); schedulePush();
+      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush();
       renderSyncModal();
     };
-    var fail=function(e){ console.error(e); gh.enabled=false; setSync('未连接'); ghMsgSet('连接失败：'+((e&&e.message)||'请检查令牌权限或网络'),'#e5484d'); };
+    var fail=function(e){ console.error(e); gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('连接失败：'+info.detail+'（请检查令牌权限或网络后重试）','#e5484d'); };
     ghMsgSet('正在用令牌自动查找你的同步备份…');
     ghDiscover().then(function(foundId){
       if(foundId){ gh.gistId=foundId; gh.enabled=true; ghSaveConfig(); ghPull().then(done).catch(fail); }
@@ -1939,7 +1967,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         if(allRows.length===0 && !confirm('未找到已有的云备份，且本地记录为空。连接将创建一个空的云备份。确定吗？')){ ghMsgSet('已取消','#e5484d'); setSync('未连接'); return; }
         ghPush(allRows).then(done).catch(fail);
       }
-    }).catch(function(e){ gh.enabled=false; setSync('未连接'); ghMsgSet('自动查找失败：'+((e&&e.message)||e)+'。请检查令牌权限或网络后重试。','#e5484d'); });
+    }).catch(function(e){ gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('自动查找失败：'+info.detail+'。请检查令牌权限或网络后重试。','#e5484d'); });
   });
 
   var searchInput=document.getElementById('searchInput');
