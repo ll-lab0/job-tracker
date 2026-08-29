@@ -56,7 +56,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .qa-msg:empty{display:none;}
   .qa-msg.ok{color:#1a8a55;} .qa-msg.err{color:#e5484d;}
   /* 卡片头部收起按钮：标题右侧小图标 */
-  .qa-collapse{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;padding:0;color:#16a34a;background:transparent;border:1px solid #bbf7d0;border-radius:8px;cursor:pointer;}
+  .qa-collapse{display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex-shrink:0;padding:0;color:#15803d;background:#eafaf1;border:1px solid #86efac;border-radius:8px;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease;}
+  .qa-collapse:hover{background:#dcfce7;border-color:#22c55e;color:#166534;box-shadow:0 2px 8px rgba(22,163,74,.18);}
+  .qa-collapse:active{background:#bbf7d0;}
   .qa-collapse svg{width:18px;height:18px;display:block;}
   .qa-collapse:hover{background:rgba(22,163,74,.08);}
   /* 收起后的绿色圆形悬浮按钮：可拖拽，松手自动贴左/右 */
@@ -70,7 +72,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .qa-modal-head .qa-head-title svg{width:20px;height:20px;}
   .qa-modal-x{background:transparent;border:none;font-size:24px;line-height:1;color:#94a3b8;cursor:pointer;padding:2px 6px;border-radius:6px;touch-action:manipulation;}
   .qa-modal-x:hover{background:rgba(0,0,0,.05);}
-  .qa-modal .qa-jd{padding:14px 16px;font-size:15px;min-height:140px;border-radius:12px;}
+  .qa-modal .qa-jd{padding:14px 16px;font-size:15px;min-height:190px;border-radius:12px;}
   .qa-modal .qa-actions{margin-top:14px;}
   .qa-modal .qa-btn{min-height:50px;padding:0 28px;font-size:16px;border-radius:12px;}
   .qa-btn-secondary{flex:0 0 auto;background:#fff;color:#16a34a;border:1px solid #bbf7d0;border-radius:12px;min-height:50px;padding:0 24px;font-size:15px;font-weight:700;white-space:nowrap;cursor:pointer;touch-action:manipulation;}
@@ -313,6 +315,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .sync-modal .status-box{font-size:14px;color:#33415c;background:#f0f7ff;border:1px solid #c9dcff;border-radius:12px;padding:18px 20px;margin-bottom:14px;line-height:1.6;}
   .sync-modal .sync-actions{margin-top:16px;gap:10px;}
   .sync-modal .sync-hint{font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:12px;}
+  .sync-modal .sync-cross{margin-top:10px;background:#f5f9ff;border:1px solid #dbe7ff;border-radius:10px;padding:9px 10px;}
+  .sync-modal .sync-cross .explain{font-size:12px;color:var(--ink);line-height:1.5;}
+  .sync-modal .sync-link-row{display:flex;gap:6px;margin-top:7px;}
+  .sync-modal .sync-link-row .gh-input{flex:1;min-width:0;font-size:12px;padding:7px 8px;background:#fff;border:1px solid #c9dcff;border-radius:8px;color:#33415c;}
+  .sync-modal .sync-link-row .m-ok{flex:0 0 auto;padding:7px 12px;font-size:13px;}
   .sync-modal .sync-actions button{min-height:42px;font-size:15px;}
   .sync-modal .gh-input{padding:11px 12px;font-size:14px;}
   .sync-modal .gh-advanced{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;}
@@ -346,6 +353,59 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     .sync-modal{max-height:calc(100dvh - 80px);}
     #ghModal.modal-mask{align-items:center;}
   }
+  /* 求职日历 */
+  #calendarView{padding:2px 0 8px;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 2px 12px;}
+  .cal-title{font-size:17px;font-weight:700;color:#1f2a44;letter-spacing:.3px;}
+  .cal-nav{border:1px solid #e3e8f0;background:#fff;color:#33415c;border-radius:9px;min-width:36px;height:34px;padding:0 12px;font-size:16px;cursor:pointer;transition:background .15s,box-shadow .15s;}
+  .cal-nav:hover{background:#f0f5ff;box-shadow:0 1px 4px rgba(47,107,255,.12);}
+  .cal-nav:active{transform:scale(.96);}
+  .cal-nav.cal-today{font-size:13px;min-width:52px;color:#2f6bff;border-color:#c2d8ff;}
+  .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:6px;}
+  .cal-week span{text-align:center;font-size:12px;font-weight:600;color:#aab2c0;padding:4px 0;}
+  .cal-week span:first-child,.cal-week span:last-child{color:#cf9b9b;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;background:#eef1f6;border:1px solid #e0e5ee;border-radius:10px;overflow:hidden;}
+  .cal-cell{border:1px solid #eef1f6;background:#fff;min-height:54px;max-height:92px;padding:4px 3px 3px;font-size:11px;transition:background .15s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+  .cal-cell.cal-empty{background:#f9fafc;border:none;min-height:54px;max-height:none;padding:0;}
+  .cal-cell.cal-has{cursor:pointer;background:#f5f9ff;border-color:#dce7ff;}
+  .cal-cell.cal-has:hover{background:#eef4ff;}
+  .cal-cell.cal-today-cell{background:#fff;border-color:#2f6bff;box-shadow:inset 0 0 0 1px #2f6bff;z-index:1;}
+  .cal-date{font-size:12px;color:#33415c;font-weight:600;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;}
+  .cal-cell.cal-today-cell .cal-date{color:#2f6bff;}
+  .cal-today-label{font-size:9px;color:#fff;background:#2f6bff;border-radius:4px;padding:1px 3px;font-weight:700;line-height:1;}
+  .cal-badge{font-size:10px;line-height:1.2;margin-top:2px;border-radius:5px;padding:2px 4px;display:block;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-width:100%;}
+  .cal-badge.cal-deliver{background:#e7f7ee;color:#16824f;font-weight:600;}
+  .cal-badge.cal-interview{background:#fff1e0;color:#cf6f0a;font-weight:600;}
+  .cal-legend{display:flex;gap:16px;align-items:center;margin:14px 4px 2px;font-size:12px;color:#6b7280;}
+  .cal-leg-item{display:flex;align-items:center;gap:6px;}
+  .cal-dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .cal-dot-deliver{background:#16824f;}
+  .cal-dot-interview{background:#cf6f0a;}
+  .cal-note{font-size:12px;color:#9aa3af;margin:10px 2px;}
+  .cal-cell.cal-active{background:linear-gradient(180deg,#2f6bff,#4c84ff)!important;border-color:#2f6bff!important;color:#fff!important;box-shadow:0 4px 14px rgba(47,107,255,.28)!important;z-index:2;}
+  .cal-cell.cal-active .cal-date{color:#fff!important;}
+  .cal-cell.cal-active .cal-today-label{background:#fff!important;color:#2f6bff!important;}
+  .cal-cell.cal-active .cal-badge.cal-deliver{background:rgba(255,255,255,.22)!important;color:#fff!important;}
+  .cal-cell.cal-active .cal-badge.cal-interview{background:rgba(255,255,255,.22)!important;color:#fff!important;}
+  .cal-detail-inline{grid-column:1 / -1;background:linear-gradient(180deg,#f0f6ff,#e6efff);border:1px solid #c2d8ff;border-radius:14px;padding:12px 14px;margin:2px 0 8px;box-shadow:0 6px 20px rgba(47,107,255,.12);animation:calFade .18s ease-out;}
+  @keyframes calFade{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  .cal-detail-inline-title{font-size:14px;font-weight:700;color:#1f2a44;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .cal-detail-inline-title::before{content:'';width:6px;height:6px;border-radius:50%;background:#2f6bff;}
+  .cal-detail-inline-sec{margin:8px 0;}
+  .cal-detail-inline-sec h4{margin:0 0 5px;font-size:12px;color:#5a6c8a;font-weight:600;}
+  .cal-detail-inline-row{font-size:13px;padding:6px 0;border-bottom:1px dashed #d4e2fa;color:#33415c;display:flex;align-items:center;gap:8px;}
+  .cal-detail-inline-row:last-child{border-bottom:none;}
+  .cal-detail-inline-row b{color:#1f2a44;font-weight:600;}
+  .cal-detail-inline-st{font-size:11px;color:#7e8ba3;background:#fff;border-radius:6px;padding:1px 6px;border:1px solid #e3e8f0;}
+  .cal-detail-inline-empty{color:#7e8ba3;padding:10px 0;font-size:13px;}
+  .cal-detail-inline-close{position:absolute;top:8px;right:10px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(47,107,255,.1);color:#2f6bff;font-size:16px;line-height:26px;text-align:center;cursor:pointer;transition:background .15s;}
+  .cal-detail-inline-close:hover{background:rgba(47,107,255,.2);}
+  .cal-detail-modal{max-width:440px;display:none;}
+  .cal-detail-sec{margin:8px 0;}
+  .cal-detail-sec h4{margin:6px 0 4px;font-size:14px;color:#1f2a44;}
+  .cal-detail-row{font-size:13px;padding:5px 0;border-bottom:1px dashed #eef1f6;color:#33415c;}
+  .cal-detail-st{font-size:11px;color:#9aa3af;margin-left:4px;}
+  .cal-detail-empty{color:#9aa3af;padding:8px 0;}
 </style>
 </head>
 <body>
@@ -364,8 +424,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   <div class="aihint" id="aiHint">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2f6bff" stroke-width="2"/><path d="M12 11v5" stroke="#2f6bff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="#2f6bff"/></svg>
     <div>
-      <div><b>跨设备同步</b>：点上方<b>「云同步」</b>连接你的 GitHub 私有 Gist（零费用、数据归你），之后任意设备打开<b>公开链接</b>即自动同步。</div>
-      <div style="margin-top:6px;">未连接时数据存在<b>本机浏览器</b>，可用<b>「导出备份 / 导入备份 / 导出表格」</b>手动备份迁移。</div>
+      <div><b>跨设备同步</b>：点上方「云同步」连接 GitHub 私有 Gist，任意设备打开同一链接即可自动同步。</div>
+      <div style="margin-top:6px;">未连接时数据存在本机浏览器，可用「导出备份 / 导入备份 / 导出表格」手动迁移。</div>
     </div>
     <span id="aiHintXWrap"></span>
   </div>
@@ -375,6 +435,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     <button class="tab-btn active" data-view="list">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       <span>岗位列表</span>
+    </button>
+    <button class="tab-btn" data-view="calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>求职日历</span>
     </button>
     <button class="tab-btn" data-view="dash">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -441,6 +505,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         <label>投递状态</label>
         <div class="status-dd form-status-dd" id="formStatusDd"></div>
         <input type="hidden" name="status" id="formStatusInput">
+        <label>投递日期（选填）</label>
+        <input type="date" name="deliverDate" placeholder="实际投递当天">
+        <label>面试日期（选填）</label>
+        <input type="date" name="interviewDate" placeholder="面试安排当天">
         <label>打招呼话术</label>
         <textarea name="pitch" placeholder="粘贴你的打招呼话术，随时可改"></textarea>
         <div class="form-actions" id="formActionsWrap"></div>
@@ -450,6 +518,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   <div id="list"></div>
   <div id="dashView" style="display:none;"></div>
+  <div id="calendarView" style="display:none;"></div>
   </div>
   <div class="hint">未连接 GitHub 时数据只存本机浏览器；连接后自动跨设备同步。</div>
 </div>
@@ -480,6 +549,13 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <button type="button" class="m-cancel" id="ghCancel">关闭</button>
     </div>
     <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步；此按钮用于手动立即同步（上传本机改动并拉取其他设备最新数据）。</div>
+    <div class="sync-cross" id="syncCross" style="display:none;">
+      <div class="explain" style="margin:8px 0 4px;">📎 <b>跨设备查看</b>：复制下面的链接发给电脑端，打开即自动定位这份备份（电脑端仍需粘贴一次你的令牌）。</div>
+      <div class="sync-link-row">
+        <input id="crossLinkInput" class="gh-input" readonly />
+        <button type="button" class="m-ok" id="copyCrossLink">复制链接</button>
+      </div>
+    </div>
     <div class="gh-advanced" id="ghAdvanced" style="display:none;">
       <button type="button" class="gh-adv-toggle" id="ghAdvToggle">高级选项</button>
       <div class="gh-adv-body" id="ghAdvBody" style="display:none;">
@@ -585,9 +661,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var BADGE_CLASS={'待打招呼':'b-greet','待投':'b-todo','已投·待回复':'b-sent','不合适':'b-nofit','面试中':'b-interview','已Offer':'b-offer','已拒':'b-reject'};
   var STATUS_COLOR={'待打招呼':'#ff8a00','待投':'#9aa0a6','已投·待回复':'#2f6bff','不合适':'#f59e0b','面试中':'#ff8a00','已Offer':'#a855f7','已拒':'#c0c4cc'};
 
-  function todayStr(){
+  function todayStr(){ return dateStr(); }
+  function dateStr(){
     var d=new Date();
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function nowStr(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
   }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function genId(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('r'+Date.now()+Math.random().toString(16).slice(2)); }
@@ -641,7 +722,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function lsSave(a){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(a)); return true; }catch(e){ console.error(e); return false; } }
   function findById(id){ var a=lsLoad(); for(var i=0;i<a.length;i++){ if(a[i].id===id) return a[i]; } return null; }
   function upsert(rec){ var a=lsLoad(); var f=false; for(var i=0;i<a.length;i++){ if(a[i].id===rec.id){ a[i]=rec; f=true; break; } } if(!f) a.unshift(rec); lsSave(a); schedulePush(); }
-  function removeRec(id){ var a=lsLoad(); for(var i=0;i<a.length;i++){ if(a[i].id===id){ a[i]._deleted=true; a[i]['更新时间']=todayStr(); break; } } lsSave(a); allRows=a; schedulePush(); }
+  function removeRec(id){ var a=lsLoad(); for(var i=0;i<a.length;i++){ if(a[i].id===id){ a[i]._deleted=true; a[i]['更新时间']=nowStr(); break; } } lsSave(a); allRows=a; schedulePush(); }
   // 仅返回未删除的记录（墓碑 _deleted 的记录在合并同步中保留、渲染时过滤）
   function activeRows(){ return (allRows||[]).filter(function(r){ return !r._deleted; }); }
 
@@ -665,7 +746,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     return ym===key;
   }
   // 历史数据回填：旧记录无录入时间时，用更新时间近似（迁移，不破坏既有数据）
-  function normalizeRows(arr){ (arr||[]).forEach(function(r){ if(!r['录入时间']) r['录入时间']=r['更新时间']||todayStr(); }); return arr; }
+  function normalizeRows(arr){ (arr||[]).forEach(function(r){ if(!r['录入时间']) r['录入时间']=r['更新时间']||dateStr(); }); return arr; }
 
   // ===== GitHub Gist 同步层（零费用 / 跨设备 / 数据归用户）=====
   var GH_TOKEN_KEY='wb_jobtrack_gh_token';
@@ -709,9 +790,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 同步请求封装：超时独立于 AbortController（Promise.race）。即使运行环境不支持 AbortController，
   // 也会在 GH_SYNC_TIMEOUT 后 reject，杜绝「请求卡死 → 状态条永久显示同步中」的问题（CloudStudio 手机端曾复现）
   var GH_SYNC_TIMEOUT=15000;
-  function ghApi(path, method, body){
+  function ghApi(path, method, body, opts){
+    opts=opts||{};
     var opt={ method:method, headers:{ 'Authorization':'Bearer '+gh.token, 'Accept':'application/vnd.github+json' } };
     if(body!==undefined){ opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body); }
+    if(opts.keepalive) opt.keepalive=true;
     var ctrl=(window.AbortController)?new AbortController():null;
     if(ctrl) opt.signal=ctrl.signal;
     var timerId=null;
@@ -757,10 +840,16 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function ghPush(records){
     if(!gh.token) return Promise.resolve();
-    var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:records||[]},null,2);
-    var body={ files:{} }; body.files[GH_FILE]={ content:content };
-    if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; return ghApi('/gists','POST',body).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
-    return ghApi('/gists/'+gh.gistId,'PATCH',body);
+    var payload=function(arr){ return JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:arr||[]},null,2); };
+    if(!gh.gistId){ var b0={ files:{} }; b0.files[GH_FILE]={ content:payload(records) }; b0.public=false; b0.description='求职岗位跟踪数据'; return ghApi('/gists','POST',b0).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
+    // 并发安全：先拉云端、把本机改动按「更新时间后到者胜 + 删除优先」合并进去再写回，绝不盲目整文件覆盖
+    // —— 否则会复活对方已删的卡片、抹掉对方刚补的日期（T4 复现的 bug）
+    return ghFetch().then(function(cloud){
+      var merged=mergeByUpdated(records, cloud||[]);
+      allRows=merged; normalizeRows(allRows); lsSave(allRows);
+      var b1={ files:{} }; b1.files[GH_FILE]={ content:payload(merged) };
+      return ghApi('/gists/'+gh.gistId,'PATCH',b1);
+    });
   }
   function ghDiscover(){
     return ghApi('/gists?per_page=100','GET').then(function(list){
@@ -790,7 +879,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         else { winner = ex; }
         map[r.id]=winner; return;
       }
-      if((r['更新时间']||'') >= (ex['更新时间']||'')) map[r.id]=r;
+      // 时间戳相等时保留已存在的记录（通常是本地），避免同一天内云端旧记录覆盖本地新字段（如投递/面试日期）
+      if((r['更新时间']||'') > (ex['更新时间']||'')) map[r.id]=r;
     }
     (local||[]).forEach(put); (cloud||[]).forEach(put);
     return Object.keys(map).map(function(k){ return map[k]; });
@@ -800,9 +890,22 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     clearTimeout(pushTimer);
     pushTimer=setTimeout(function(){
       setSync('同步中…');
-      // 先拉后推：先 ghPull(false) 逐条按 updated 合并云端（删除优先），再 ghPush 本机全量；任一方都不会被单方面覆盖
-      ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
+      // 先推后拉：先把本机改动（含刚补填的投递/面试日期）推上去，确保一定上传、不被前置拉取失败短路；
+      // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
+      ghPush(allRows)
+        .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
+        .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+        .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
     }, 800);
+  }
+  // 真正的双向同步：先推本机改动，再拉云端合并（拉取失败也照常推）。供「云同步」按钮与重试复用
+  function twoWaySync(){
+    if(!gh.enabled) return;
+    setSync('同步中…');
+    ghPush(allRows)
+      .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
+      .then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
+      .catch(function(e){ var info=ghErrInfo(e); console.error(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留，未上传','error'); });
   }
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
   function ghPull(force){
@@ -827,16 +930,32 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghFlush(){
     if(!gh.enabled) return;
     try{
-      var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:allRows||[]},null,2);
-      var body={ files:{} }; body.files[GH_FILE]={ content:content };
-      if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; }
-      fetch('https://api.github.com/gists'+(gh.gistId?('/'+gh.gistId):''), {
-        method: gh.gistId?'PATCH':'POST',
-        headers:{ 'Authorization':'Bearer '+gh.token, 'Content-Type':'application/json', 'Accept':'application/vnd.github+json' },
-        body: JSON.stringify(body),
-        keepalive: true
-      });
+      // 关闭/刷新兜底：先拉云端合并本机改动再写回（keepalive 保证卸载也能送出）；取不到云端就放弃写回，绝不盲目覆盖对方数据
+      ghFetch().then(function(cloud){
+        var merged=mergeByUpdated(allRows, cloud||[]);
+        allRows=merged; normalizeRows(allRows); lsSave(allRows);
+        var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:merged},null,2);
+        var body={ files:{} }; body.files[GH_FILE]={ content:content };
+        if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; ghApi('/gists','POST',body,{keepalive:true}); }
+        else ghApi('/gists/'+gh.gistId,'PATCH',body,{keepalive:true});
+      }).catch(function(){});
     }catch(e){}
+  }
+  // 安静的后台定时拉取：仅标签可见时跑，无变更不重渲、不闪状态条；让跨设备改动自动浮现，不依赖手动刷新/切标签
+  var autoPullTimer=null;
+  function silentPull(){
+    if(!gh.enabled || document.hidden) return;
+    ghFetch().then(function(cloud){
+      if(!cloud || !cloud.length) return;
+      var sig=function(){ return activeRows().map(function(r){ return r.id+'|'+(r['更新时间']||'')+'|'+(r._deleted?'D':'')+'|'+(r['投递日期']||'')+'|'+(r['面试日期']||''); }).sort().join(''); };
+      var before=sig();
+      allRows=mergeByUpdated(allRows, cloud); normalizeRows(allRows); lsSave(allRows);
+      if(before!==sig()){ buildFilters(); render(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }
+    }).catch(function(){});
+  }
+  function startAutoPull(){
+    if(autoPullTimer) return;
+    autoPullTimer=setInterval(silentPull, 25000);
   }
   if(window.addEventListener) window.addEventListener('beforeunload', ghFlush);
 
@@ -1147,8 +1266,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); ghPull(false); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取
+    else if(gh.enabled){ buildFilters(); render(); ghPull(false).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(){}); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取；拉取成功置绿，失败由 ghPull 内部置红
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
+    if(gh.enabled) startAutoPull();
     updateTabs();
     requestAnimationFrame(moveIndicator);
     setTimeout(moveIndicator, 0);
@@ -1169,6 +1289,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   if(obStart) obStart.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); if(window.__syncModalLock) window.__syncModalLock(); });
   var obLater=document.getElementById('onboardLater');
   if(obLater) obLater.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); if(window.__syncModalLock) window.__syncModalLock(); });
+  // 点遮罩空白处也可关闭引导弹窗（手机端友好），避免弹窗全屏拦截点击导致「点不动/卡」
+  var obModal=document.getElementById('onboardModal');
+  if(obModal) obModal.addEventListener('click',function(e){ if(e.target===obModal){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} obModal.classList.remove('show'); } });
 
 
   function buildFilters(){
@@ -1285,7 +1408,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(searchTerm){ var t=searchTerm.toLowerCase(); rows=rows.filter(function(r){ return (r['公司']||'').toLowerCase().indexOf(t)>=0 || (r['职位']||'').toLowerCase().indexOf(t)>=0; }); }
 
     var exEl=document.querySelector('.expandbar');
-    if(exEl) exEl.style.display = (viewMode==='dash' || !rows.length) ? 'none' : '';
+    if(exEl) exEl.style.display = (viewMode!=='list' || !rows.length) ? 'none' : '';
 
     var list=document.getElementById('list');
     if(!rows.length){
@@ -1299,7 +1422,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       var id=dd.getAttribute('data-id');
       var rec=findById(id); if(!rec) return;
       setupStatusDropdown(dd, rec['投递状态'], function(val){
-        rec['投递状态']=val; rec['更新时间']=todayStr();
+        rec['投递状态']=val; rec['更新时间']=nowStr();
         upsert(rec); loadData();
       });
     });
@@ -1324,20 +1447,108 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // ===== 数据看板（回顾 / 看板）=====
   function setView(){
     var dash = viewMode==='dash';
-    var hide = dash ? 'none' : '';
-    var todoEl=document.querySelector('.todo'); if(todoEl) todoEl.style.display=hide;
-    var tbEl=document.querySelector('.toolbar'); if(tbEl) tbEl.style.display=hide;
-    var flEl=document.querySelector('.filters'); if(flEl) flEl.style.display=hide;
-    var listEl=document.getElementById('list'); if(listEl) listEl.style.display=hide;
-    var hintEl=document.querySelector('.hint'); if(hintEl) hintEl.style.display=hide;
-    var exEl=document.querySelector('.expandbar'); if(exEl && dash) exEl.style.display='none';
+    var cal = viewMode==='calendar';
+    var hideList = (dash||cal) ? 'none' : '';
+    var todoEl=document.querySelector('.todo'); if(todoEl) todoEl.style.display=hideList;
+    var tbEl=document.querySelector('.toolbar'); if(tbEl) tbEl.style.display=hideList;
+    var flEl=document.querySelector('.filters'); if(flEl) flEl.style.display=hideList;
+    var listEl=document.getElementById('list'); if(listEl) listEl.style.display=hideList;
+    var hintEl=document.querySelector('.hint'); if(hintEl) hintEl.style.display=hideList;
+    var exEl=document.querySelector('.expandbar'); if(exEl) exEl.style.display='none';
     applyQAVisibility();
     var dv=document.getElementById('dashView'); if(dv) dv.style.display= dash?'block':'none';
+    var cv=document.getElementById('calendarView'); if(cv) cv.style.display= cal?'block':'none';
     updateTabs();
     if(dash && dv) renderDashboard();
-    if(!dash) render();
+    if(cal && cv) renderCalendar();
+    if(!dash && !cal) render();
     try{ setScrollY(0); }catch(e){}
   }
+
+  // ===== 求职日历 =====
+  var calState={year:0, month:0};
+  function calPad(n){ return (n<10?'0':'')+n; }
+  function renderCalendar(){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    if(!calState.year){ var t=new Date(); calState.year=t.getFullYear(); calState.month=t.getMonth(); }
+    var rows=activeRows();
+    var map={};
+    rows.forEach(function(r){
+      var d=(r['投递日期']||'').trim();
+      if(d){ if(!map[d]) map[d]={deliver:[],interview:[]}; map[d].deliver.push(r); }
+      var iv=(r['面试日期']||'').trim();
+      if(iv){ if(!map[iv]) map[iv]={deliver:[],interview:[]}; map[iv].interview.push(r); }
+    });
+    var y=calState.year, m=calState.month;
+    var first=new Date(y,m,1);
+    var startDay=first.getDay();
+    var daysInMonth=new Date(y,m+1,0).getDate();
+    var cells=[];
+    for(var i=0;i<startDay;i++) cells.push(null);
+    for(var d=1;d<=daysInMonth;d++){ var ds=y+'-'+calPad(m+1)+'-'+calPad(d); cells.push({d:d, key:ds, info:map[ds]||null}); }
+    var html='';
+    html+='<div class="cal-head"><button class="cal-nav" id="calPrev">‹</button><div class="cal-title">'+y+'年 '+(m+1)+'月</div><button class="cal-nav" id="calNext">›</button><button class="cal-nav cal-today" id="calToday">今天</button></div>';
+    html+='<div class="cal-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>';
+    html+='<div class="cal-grid">';
+    cells.forEach(function(c){
+      if(c===null){ html+='<div class="cal-cell cal-empty"></div>'; return; }
+      var has=c.info;
+      var dn=has?has.deliver.length:0;
+      var inN=has?has.interview.length:0;
+      var cls='cal-cell'+(dn||inN?' cal-has':'');
+      var t=new Date(); var isToday=(t.getFullYear()===y&&t.getMonth()===m&&t.getDate()===c.d);
+      if(isToday) cls+=' cal-today-cell';
+      html+='<div class="'+cls+'" data-key="'+c.key+'">';
+      html+='<div class="cal-date"><span>'+c.d+'</span>'+(isToday?'<span class="cal-today-label">今</span>':'')+'</div>';
+      if(dn){ html+='<div class="cal-badge cal-deliver" title="投递 '+dn+' 份">投 '+dn+'</div>'; }
+      if(inN){ html+='<div class="cal-badge cal-interview" title="面试 '+inN+' 家">面 '+inN+'</div>'; }
+      html+='</div>';
+    });
+    html+='</div>';
+    html+='<div class="cal-legend"><span class="cal-leg-item"><i class="cal-dot cal-dot-deliver"></i>投递记录</span><span class="cal-leg-item"><i class="cal-dot cal-dot-interview"></i>面试安排</span></div>';
+    html+='<div class="cal-note">仅显示填了「投递日期 / 面试日期」的日期；点某天看当天明细。历史记录可在「编辑」里补填日期。</div>';
+    cv.innerHTML=html;
+    var prev=document.getElementById('calPrev'); if(prev) prev.onclick=function(){ calState.month--; if(calState.month<0){calState.month=11;calState.year--;} renderCalendar(); };
+    var next=document.getElementById('calNext'); if(next) next.onclick=function(){ calState.month++; if(calState.month>11){calState.month=0;calState.year++;} renderCalendar(); };
+    var todayBtn=document.getElementById('calToday'); if(todayBtn) todayBtn.onclick=function(){ var t=new Date(); calState.year=t.getFullYear(); calState.month=t.getMonth(); renderCalendar(); };
+    Array.prototype.forEach.call(cv.querySelectorAll('.cal-cell.cal-has'), function(cell){ cell.onclick=function(){ openCalDetail(cell.getAttribute('data-key')); }; });
+  }
+  function closeCalDetail(){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    var old=cv.querySelector('.cal-detail-inline'); if(old) old.remove();
+    Array.prototype.forEach.call(cv.querySelectorAll('.cal-cell.cal-active'), function(c){ c.classList.remove('cal-active'); });
+  }
+  function openCalDetail(key){
+    var cv=document.getElementById('calendarView'); if(!cv) return;
+    var cell=cv.querySelector('.cal-cell[data-key="'+key+'"]'); if(!cell) return;
+    var old=cv.querySelector('.cal-detail-inline');
+    if(old && old.getAttribute('data-detail-key')===key){ closeCalDetail(); return; }
+    closeCalDetail();
+    cell.classList.add('cal-active');
+    var rows=activeRows();
+    var deliver=rows.filter(function(r){return (r['投递日期']||'').trim()===key;});
+    var interview=rows.filter(function(r){return (r['面试日期']||'').trim()===key;});
+    var html='<div class="cal-detail-inline" data-detail-key="'+key+'" style="position:relative;">';
+    html+='<button class="cal-detail-inline-close" aria-label="关闭" onclick="closeCalDetail()">×</button>';
+    html+='<div class="cal-detail-inline-title">'+key+' 求职行程</div>';
+    if(deliver.length){
+      html+='<div class="cal-detail-inline-sec"><h4>投递（'+deliver.length+' 份）</h4>';
+      deliver.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='</div>';
+    }
+    if(interview.length){
+      html+='<div class="cal-detail-inline-sec"><h4>面试（'+interview.length+' 家）</h4>';
+      interview.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
+      html+='</div>';
+    }
+    if(!deliver.length&&!interview.length){ html+='<div class="cal-detail-inline-empty">这一天没有投递 / 面试记录</div>'; }
+    html+='</div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=html;
+    var detail=wrap.firstChild;
+    if(cell.nextSibling){ cell.parentNode.insertBefore(detail, cell.nextSibling); } else { cell.parentNode.appendChild(detail); }
+    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
   function renderDashboard(){
     var rows=activeRows();
     if(periodFilter){ rows=rows.filter(function(r){ return rowMatchesPeriod(r, periodFilter); }); }
@@ -1441,7 +1652,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       var val=ta.value;
       r['打招呼话术']=val;
       if(val.trim() && (r['投递状态']||'')==='待打招呼'){ r['投递状态']='待投'; }
-      r['更新时间']=todayStr();
+      r['更新时间']=nowStr();
       upsert(r);
       document.body.removeChild(mask); loadData();
     });
@@ -1526,6 +1737,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(formStatusDd) setupStatusDropdown(formStatusDd,st,function(val){ if(formStatusInput) formStatusInput.value=val; clearTimeout(cacheTimer); cacheTimer=setTimeout(cacheSave,300); });
     form.pitch.value=r['打招呼话术']||'';
     form.jd.value=r['JD原文']||'';
+    form.deliverDate.value=r['投递日期']||'';
+    form.interviewDate.value=r['面试日期']||'';
     document.getElementById('formTitle').textContent='编辑岗位';
     if(jdHint) jdHint.style.display='none';
     jobFormModal.classList.add('show');
@@ -1644,7 +1857,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       var rec={};
       rec['公司']=company; rec['职位']=position; rec['薪资']=salary;
       rec['JD原文']=raw; rec['投递状态']='待打招呼';
-      rec['录入时间']=todayStr(); rec['更新时间']=todayStr(); rec['id']=genId();
+      rec['录入时间']=nowStr(); rec['更新时间']=nowStr(); rec['id']=genId();
       upsert(rec); loadData();
       if(gh.enabled) schedulePush();
       jd.value='';
@@ -1663,9 +1876,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var qaCollapse=document.getElementById('qaCollapse');
   function applyQAVisibility(){
     var dash = viewMode==='dash';
+    var cal = viewMode==='calendar';
     var qaEl=document.getElementById('quickAdd');
-    if(qaEl) qaEl.style.display = (dash||qaCollapsed) ? 'none' : '';
-    if(qaFab) qaFab.style.display = (dash||!qaCollapsed) ? 'none' : 'flex';
+    if(qaEl) qaEl.style.display = (dash||cal||qaCollapsed) ? 'none' : '';
+    if(qaFab) qaFab.style.display = (dash||cal||!qaCollapsed) ? 'none' : 'flex';
   }
   if(qaCollapse) qaCollapse.addEventListener('click', function(){
     var qaEl=document.getElementById('quickAdd');
@@ -1764,8 +1978,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     rec['地点']=form.location.value.trim();
     rec['打招呼话术']=form.pitch.value;
     rec['JD原文']=form.jd.value;
-    if(!editingId){ rec['录入时间']=todayStr(); }
-    rec['更新时间']=todayStr();
+    rec['投递日期']=form.deliverDate.value||'';
+    rec['面试日期']=form.interviewDate.value||'';
+    if(!editingId){ rec['录入时间']=nowStr(); }
+    rec['更新时间']=nowStr();
     var _pitch=form.pitch.value.trim();
     if(_pitch && (form.status.value==='待打招呼' || form.status.value==='')){
       rec['投递状态']='待投';
@@ -1929,7 +2145,25 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ ghPull(); } });
+  // 跨设备链接：已连 Gist 时生成「当前页面?gist=备份ID」链接，电脑端打开自动定位备份（仍需粘一次令牌）
+  function updateCrossLink(){
+    var box=document.getElementById('syncCross'); if(!box) return;
+    if(gh.enabled && gh.gistId){
+      var url=location.origin+location.pathname+'?gist='+encodeURIComponent(gh.gistId);
+      var inp=document.getElementById('crossLinkInput'); if(inp) inp.value=url;
+      box.style.display='';
+    } else { box.style.display='none'; }
+  }
+  var copyCrossBtn=document.getElementById('copyCrossLink');
+  if(copyCrossBtn) copyCrossBtn.addEventListener('click',function(){
+    if(!gh.gistId){ ghMsgSet('请先连接 Gist 再生成跨设备链接','#e8a317'); return; }
+    var url=location.origin+location.pathname+'?gist='+encodeURIComponent(gh.gistId);
+    var done=function(){ ghMsgSet('已复制跨设备链接，发给电脑端打开即可自动定位备份','#1bbf72'); };
+    var fallbackCopy=function(t){ var inp=document.getElementById('crossLinkInput'); if(inp){ inp.value=t; inp.select(); } try{ document.execCommand('copy'); done(); }catch(e){ ghMsgSet('复制失败，请长按链接手动复制','#e5484d'); } };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done).catch(function(){ fallbackCopy(url); }); }
+    else { fallbackCopy(url); }
+  });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } updateCrossLink(); });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
@@ -1937,8 +2171,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghMsgSet('正在用令牌重新查找备份…');
     ghDiscover().then(function(foundId){
       if(foundId){
-        gh.gistId=foundId; gh.enabled=true; ghSaveConfig();
-        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); })
+        gh.gistId=foundId; gh.enabled=true; ghSaveConfig(); startAutoPull();
+        ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); updateCrossLink(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
           .catch(function(e){ ghMsgSet('拉取失败：'+((e&&e.message)||e),'#e5484d'); });
       } else {
         ghMsgSet('未找到已有的云备份','#e8a317');
@@ -1971,8 +2205,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var done=function(){
       gh.enabled=true; ghSaveConfig();
       ghMsgSet('连接成功，已同步 '+activeRows().length+' 条','#1bbf72');
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush();
-      renderSyncModal();
+      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush(); startAutoPull();
+      renderSyncModal(); updateCrossLink();
     };
     var fail=function(e){ console.error(e); gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('连接失败：'+info.detail+'（请检查令牌权限或网络后重试）','#e5484d'); };
     ghMsgSet('正在用令牌自动查找你的同步备份…');
@@ -1987,6 +2221,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   var searchInput=document.getElementById('searchInput');
   if(searchInput){ searchInput.addEventListener('input',function(){ searchTerm=searchInput.value.trim(); render(); }); }
+
+  // 切回页面（如手机端推完、回到电脑端标签页）自动拉一次云端，及时拿到其他设备的日期/状态更新；只拉不推，安全
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden && gh.enabled){ ghPull(false).catch(function(){}); } });
 
   init();
 })();

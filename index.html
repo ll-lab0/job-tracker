@@ -790,9 +790,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 同步请求封装：超时独立于 AbortController（Promise.race）。即使运行环境不支持 AbortController，
   // 也会在 GH_SYNC_TIMEOUT 后 reject，杜绝「请求卡死 → 状态条永久显示同步中」的问题（CloudStudio 手机端曾复现）
   var GH_SYNC_TIMEOUT=15000;
-  function ghApi(path, method, body){
+  function ghApi(path, method, body, opts){
+    opts=opts||{};
     var opt={ method:method, headers:{ 'Authorization':'Bearer '+gh.token, 'Accept':'application/vnd.github+json' } };
     if(body!==undefined){ opt.headers['Content-Type']='application/json'; opt.body=JSON.stringify(body); }
+    if(opts.keepalive) opt.keepalive=true;
     var ctrl=(window.AbortController)?new AbortController():null;
     if(ctrl) opt.signal=ctrl.signal;
     var timerId=null;
@@ -838,10 +840,16 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   }
   function ghPush(records){
     if(!gh.token) return Promise.resolve();
-    var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:records||[]},null,2);
-    var body={ files:{} }; body.files[GH_FILE]={ content:content };
-    if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; return ghApi('/gists','POST',body).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
-    return ghApi('/gists/'+gh.gistId,'PATCH',body);
+    var payload=function(arr){ return JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:arr||[]},null,2); };
+    if(!gh.gistId){ var b0={ files:{} }; b0.files[GH_FILE]={ content:payload(records) }; b0.public=false; b0.description='求职岗位跟踪数据'; return ghApi('/gists','POST',b0).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
+    // 并发安全：先拉云端、把本机改动按「更新时间后到者胜 + 删除优先」合并进去再写回，绝不盲目整文件覆盖
+    // —— 否则会复活对方已删的卡片、抹掉对方刚补的日期（T4 复现的 bug）
+    return ghFetch().then(function(cloud){
+      var merged=mergeByUpdated(records, cloud||[]);
+      allRows=merged; normalizeRows(allRows); lsSave(allRows);
+      var b1={ files:{} }; b1.files[GH_FILE]={ content:payload(merged) };
+      return ghApi('/gists/'+gh.gistId,'PATCH',b1);
+    });
   }
   function ghDiscover(){
     return ghApi('/gists?per_page=100','GET').then(function(list){
@@ -922,16 +930,32 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghFlush(){
     if(!gh.enabled) return;
     try{
-      var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:allRows||[]},null,2);
-      var body={ files:{} }; body.files[GH_FILE]={ content:content };
-      if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; }
-      fetch('https://api.github.com/gists'+(gh.gistId?('/'+gh.gistId):''), {
-        method: gh.gistId?'PATCH':'POST',
-        headers:{ 'Authorization':'Bearer '+gh.token, 'Content-Type':'application/json', 'Accept':'application/vnd.github+json' },
-        body: JSON.stringify(body),
-        keepalive: true
-      });
+      // 关闭/刷新兜底：先拉云端合并本机改动再写回（keepalive 保证卸载也能送出）；取不到云端就放弃写回，绝不盲目覆盖对方数据
+      ghFetch().then(function(cloud){
+        var merged=mergeByUpdated(allRows, cloud||[]);
+        allRows=merged; normalizeRows(allRows); lsSave(allRows);
+        var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:merged},null,2);
+        var body={ files:{} }; body.files[GH_FILE]={ content:content };
+        if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; ghApi('/gists','POST',body,{keepalive:true}); }
+        else ghApi('/gists/'+gh.gistId,'PATCH',body,{keepalive:true});
+      }).catch(function(){});
     }catch(e){}
+  }
+  // 安静的后台定时拉取：仅标签可见时跑，无变更不重渲、不闪状态条；让跨设备改动自动浮现，不依赖手动刷新/切标签
+  var autoPullTimer=null;
+  function silentPull(){
+    if(!gh.enabled || document.hidden) return;
+    ghFetch().then(function(cloud){
+      if(!cloud || !cloud.length) return;
+      var sig=function(){ return activeRows().map(function(r){ return r.id+'|'+(r['更新时间']||'')+'|'+(r._deleted?'D':'')+'|'+(r['投递日期']||'')+'|'+(r['面试日期']||''); }).sort().join(''); };
+      var before=sig();
+      allRows=mergeByUpdated(allRows, cloud); normalizeRows(allRows); lsSave(allRows);
+      if(before!==sig()){ buildFilters(); render(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }
+    }).catch(function(){});
+  }
+  function startAutoPull(){
+    if(autoPullTimer) return;
+    autoPullTimer=setInterval(silentPull, 25000);
   }
   if(window.addEventListener) window.addEventListener('beforeunload', ghFlush);
 
@@ -1244,6 +1268,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
     else if(gh.enabled){ buildFilters(); render(); ghPull(false).then(function(){ setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); }).catch(function(){}); } // 先渲染本机数据（刷新立即可见、不被云端同步卡白屏），再后台静默合并拉取；拉取成功置绿，失败由 ghPull 内部置红
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
+    if(gh.enabled) startAutoPull();
     updateTabs();
     requestAnimationFrame(moveIndicator);
     setTimeout(moveIndicator, 0);
@@ -2146,7 +2171,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghMsgSet('正在用令牌重新查找备份…');
     ghDiscover().then(function(foundId){
       if(foundId){
-        gh.gistId=foundId; gh.enabled=true; ghSaveConfig();
+        gh.gistId=foundId; gh.enabled=true; ghSaveConfig(); startAutoPull();
         ghPull().then(function(){ ghMsgSet('已重新连接，'+activeRows().length+' 条','#1bbf72'); renderSyncModal(); updateCrossLink(); setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); })
           .catch(function(e){ ghMsgSet('拉取失败：'+((e&&e.message)||e),'#e5484d'); });
       } else {
@@ -2180,7 +2205,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var done=function(){
       gh.enabled=true; ghSaveConfig();
       ghMsgSet('连接成功，已同步 '+activeRows().length+' 条','#1bbf72');
-      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush();
+      setSync('当前已自动同步 · 自动云端备份，无需手动触发','success'); schedulePush(); startAutoPull();
       renderSyncModal(); updateCrossLink();
     };
     var fail=function(e){ console.error(e); gh.enabled=false; var info=ghErrInfo(e); setSync('未连接：'+info.title,'warn'); ghMsgSet('连接失败：'+info.detail+'（请检查令牌权限或网络后重试）','#e5484d'); };
