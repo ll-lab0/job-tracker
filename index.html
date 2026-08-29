@@ -1252,6 +1252,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   if(obStart) obStart.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); if(window.__syncModalLock) window.__syncModalLock(); });
   var obLater=document.getElementById('onboardLater');
   if(obLater) obLater.addEventListener('click',function(){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} var om=document.getElementById('onboardModal'); if(om) om.classList.remove('show'); if(window.__syncModalLock) window.__syncModalLock(); });
+  // 点遮罩空白处也可关闭引导弹窗（手机端友好），避免弹窗全屏拦截点击导致「点不动/卡」
+  var obModal=document.getElementById('onboardModal');
+  if(obModal) obModal.addEventListener('click',function(e){ if(e.target===obModal){ try{localStorage.setItem('wb_jobtrack_onboarded','1');}catch(e){} obModal.classList.remove('show'); } });
 
 
   function buildFilters(){
