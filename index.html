@@ -1494,7 +1494,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     });
     html+='</div>';
     html+='<div class="cal-legend"><span class="cal-leg-item"><i class="cal-dot cal-dot-deliver"></i>投递记录</span><span class="cal-leg-item"><i class="cal-dot cal-dot-interview"></i>面试安排</span></div>';
-    html+='<div class="cal-note">仅显示填了「投递日期 / 面试日期」的日期；点某天看当天明细，历史记录可在「编辑」里补填日期。</div>';
+    html+='<div class="cal-note">仅显示填了「投递日期 / 面试日期」的日期；<br>点某天看当天明细，历史记录可在「编辑」里补填日期。</div>';
     cv.innerHTML=html;
     var prev=document.getElementById('calPrev'); if(prev) prev.onclick=function(){ calState.month--; if(calState.month<0){calState.month=11;calState.year--;} renderCalendar(); };
     var next=document.getElementById('calNext'); if(next) next.onclick=function(){ calState.month++; if(calState.month>11){calState.month=0;calState.year++;} renderCalendar(); };
