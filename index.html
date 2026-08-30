@@ -138,14 +138,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .toolbar .search-clear:hover{color:#374151;}
   .toolbar .search-clear svg{position:relative;z-index:1;display:block;width:12px;height:12px;pointer-events:none;}
   .toolbar .search-clear.show{display:flex;}
-  /* 手机端：工具栏垂直堆叠，搜索框占满整行，避免文字被截断 */
-  @media (max-width:480px){
-    .toolbar{flex-direction:column;align-items:stretch;}
-    .toolbar .search-box{width:100%;min-width:0;}
-    .toolbar .search-box input{width:100%;}
-    .toolbar select{width:100%;max-width:none;}
-    .period-dd-wrap{width:100%;max-width:none;min-width:0;}
-  }
+  /* 搜索框与周期选择器保持并排；小屏允许文字截断，不换行 */
   .toolbar select{flex:0 0 auto;border:1px solid var(--line);border-radius:10px;padding:10px 10px;font-size:14px;background:#fafbfc;color:var(--ink);font-family:inherit;box-sizing:border-box;max-width:42vw;}
   .period-dd-wrap{flex:0 1 150px;min-width:130px;max-width:180px;}
   .period-dd{width:100%;}
@@ -442,7 +435,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2f6bff" stroke-width="2"/><path d="M12 11v5" stroke="#2f6bff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="#2f6bff"/></svg>
     <div>
       <div><b>跨设备同步</b>：点上方「云同步」连接 GitHub 私有 Gist，任意设备打开同一链接即可自动同步。</div>
-      <div style="margin-top:6px;">未连接时数据存在本机浏览器，可用「导出备份 / 导入备份 / 导出表格」手动迁移。</div>
+      <div style="margin-top:6px;">未连接时数据存在本机浏览器（关闭页面或重启电脑不会丢失；无痕/隐私模式不会保留）。想跨设备使用请点「云同步」；导出备份/导入备份/导出表格仅作备用迁移。</div>
     </div>
     <span id="aiHintXWrap"></span>
   </div>
@@ -737,7 +730,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 仅返回未删除的记录（墓碑 _deleted 的记录在合并同步中保留、渲染时过滤）
   function activeRows(){
     return (allRows||[]).filter(function(r){ return !r._deleted; })
-      .sort(function(a,b){ var ta=a['更新时间']||a['录入时间']||a.id||''; var tb=b['更新时间']||b['录入时间']||b.id||''; return tb.localeCompare(ta); });
+      .sort(function(a,b){ var ta=a['录入时间']||a.id||''; var tb=b['录入时间']||b.id||''; return tb.localeCompare(ta); });
   }
 
   // 周期字段：按录入时间自动记年月为最小粒度；季度/年由它推导，不丢失月
@@ -768,10 +761,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var GH_FILE='jobtrack.json';
   var gh={ token:'', gistId:'', enabled:false };
   var pushTimer=null;
+  var lastSyncText='';
+  var lastSyncType='';
 
   function setSync(t, type){
+    lastSyncText=t||'';
+    lastSyncType=type||'';
     var el=document.getElementById('syncStatus');
-    if(el){ el.textContent=t||''; }
+    if(el){ el.textContent=lastSyncText; }
     if(el){ el.style.color = type==='error' ? '#e5484d' : type==='success' ? '#1bbf72' : type==='warn' ? '#e8a317' : 'var(--sub)'; }
     var rb=document.getElementById('syncRetry');
     // 只有「已连接且失败」才显示重试：未连接时重试无效（需先填令牌）
@@ -2170,7 +2167,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       syncHint.style.display='';
       advBlock.style.display='';
       statusLine.style.display='';
-      statusLine.innerHTML='已连接 GitHub 私有 Gist。<b>打开/刷新页面时会自动同步</b>；本地共 <b>'+activeRows().length+'</b> 条。若状态条长时间显示同步中，可点顶部「云同步」手动触发。';
+      statusLine.innerHTML='已连接 GitHub 私有 Gist。<div style="margin-top:6px;">当前同步状态：<b>'+esc(lastSyncText||'未开始')+'</b></div><div style="margin-top:2px;">本地共 <b>'+activeRows().length+'</b> 条。打开/刷新页面会自动同步，也可点顶部「云同步」或下方「立即同步」手动触发。</div>';
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
