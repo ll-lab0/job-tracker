@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 求职岗位跟踪工作台 v69：Tab 改为分段控制器(浅灰容器+白底选中,去蓝)；IO 栏=导出备份/导入备份/导出表格；云同步上标题栏+一键录入卡片内手动新增；一键录入提示归位输入框；v65 提示自动消失/求职周期等保留。-->
+<!-- 求职管家工作台 v69：Tab 改为分段控制器(浅灰容器+白底选中,去蓝)；IO 栏=导出备份/导入备份/导出表格；云同步上标题栏+一键录入卡片内手动新增；一键录入提示归位输入框；v65 提示自动消失/求职周期等保留。-->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -15,7 +15,7 @@ document.addEventListener('gesturechange', function(e){ e.preventDefault(); }, {
 document.addEventListener('gestureend', function(e){ e.preventDefault(); }, { passive:false });
 document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.preventDefault(); } }, { passive:false });
 </script>
-<title>求职岗位跟踪工作台</title>
+<title>求职管家工作台</title>
 <style>
   :root{
     --bg:#f5f6f8; --card:#ffffff; --ink:#1f2329; --sub:#8a9099; --line:#ececf0;
@@ -423,7 +423,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 <div class="wrap">
 
   <header>
-    <h1>求职岗位跟踪</h1>
+    <h1>求职管家</h1>
     <span id="addBtnWrap"></span>
   </header>
 
@@ -577,7 +577,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   <div class="modal-mask" id="onboardModal">
     <div class="modal sync-modal">
-      <p class="modal-title">欢迎使用求职岗位跟踪</p>
+      <p class="modal-title">欢迎使用求职管家</p>
       <div class="explain">一个纯前端、零依赖的求职管理工具，帮你把投递全流程管清楚：</div>
       <ul class="onboard-list">
         <li><b>日历&看板</b>：总览 / 周期趋势，一眼掌握投递全貌</li>
@@ -879,7 +879,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghPush(records){
     if(!gh.token) return Promise.resolve();
     var payload=function(arr){ return JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:arr||[]},null,2); };
-    if(!gh.gistId){ var b0={ files:{} }; b0.files[GH_FILE]={ content:payload(records) }; b0.public=false; b0.description='求职岗位跟踪数据'; return ghApi('/gists','POST',b0).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
+    if(!gh.gistId){ var b0={ files:{} }; b0.files[GH_FILE]={ content:payload(records) }; b0.public=false; b0.description='求职管家数据'; return ghApi('/gists','POST',b0).then(function(g){ gh.gistId=g.id; ghSaveConfig(); return g; }); }
     // 并发安全：先拉云端、把本机改动按「更新时间后到者胜 + 删除优先」合并进去再写回，绝不盲目整文件覆盖
     // —— 否则会复活对方已删的卡片、抹掉对方刚补的日期（T4 复现的 bug）
     return ghFetch().then(function(cloud){
@@ -974,7 +974,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
         allRows=merged; normalizeRows(allRows); lsSave(allRows);
         var content=JSON.stringify({app:'wb-jobtrack',version:1,exportedAt:new Date().toISOString(),records:merged},null,2);
         var body={ files:{} }; body.files[GH_FILE]={ content:content };
-        if(!gh.gistId){ body.public=false; body.description='求职岗位跟踪数据'; ghApi('/gists','POST',body,{keepalive:true}); }
+        if(!gh.gistId){ body.public=false; body.description='求职管家数据'; ghApi('/gists','POST',body,{keepalive:true}); }
         else ghApi('/gists/'+gh.gistId,'PATCH',body,{keepalive:true});
       }).catch(function(){});
     }catch(e){}
@@ -2152,12 +2152,12 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var lines=[headers.join(',')];
     rows.forEach(function(r){ lines.push(headers.map(function(h){ return csvCell(r[h]||''); }).join(',')); });
     var csv='﻿'+lines.join('\r\n'); // BOM 确保 Excel 正确识别 UTF-8
-    showExportModal({ title:'导出表格（CSV）', text:csv, filename:'求职岗位跟踪_'+todayStr()+'.csv', mime:'text/csv;charset=utf-8' });
+    showExportModal({ title:'导出表格（CSV）', text:csv, filename:'求职管家_'+todayStr()+'.csv', mime:'text/csv;charset=utf-8' });
   }
   function exportData(){
     var data={ app:'wb-jobtrack', version:1, exportedAt:new Date().toISOString(), records:activeRows() };
     var json=JSON.stringify(data,null,2);
-    showExportModal({ title:'导出备份（JSON）', text:json, filename:'求职岗位跟踪_'+todayStr()+'.json', mime:'application/json' });
+    showExportModal({ title:'导出备份（JSON）', text:json, filename:'求职管家_'+todayStr()+'.json', mime:'application/json' });
   }
   function importData(file){
     var reader=new FileReader();

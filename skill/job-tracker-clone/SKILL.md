@@ -1,18 +1,18 @@
 ---
-name: job-tracker-clone
-description: This skill should be used when a user wants to deploy, clone, or self-host the 求职岗位跟踪 (Job Tracker) — a single-file HTML job-hunting tracker with a data dashboard (总览/状态分布/周期趋势), JD auto-fill, and cross-device GitHub Gist sync. It bundles the self-contained index.html and provides GitHub Pages / static-host deploy steps plus Gist sync setup, so the user runs their own instance with data stored in their own private Gist (author cannot access). Trigger phrases include '部署求职跟踪工具', '克隆 job-tracker', '搭一个求职管理工具', '一键创建求职追踪器', '做个求职投递看板'.
+name: jobsteward-clone
+description: This skill should be used when a user wants to deploy, clone, or self-host the 求职管家 (JobSteward) — a single-file HTML job-hunting tracker with a data dashboard (总览/状态分布/周期趋势), JD auto-fill, and cross-device GitHub Gist sync. It bundles the self-contained index.html and provides GitHub Pages / static-host deploy steps plus Gist sync setup, so the user runs their own instance with data stored in their own private Gist (author cannot access). Trigger phrases include '部署求职跟踪工具', '克隆 jobsteward', '搭一个求职管理工具', '一键创建求职追踪器', '做个求职投递看板'.
 agent_created: true
 ---
 
-# Job Tracker Clone
+# JobSteward Clone
 
 ## Overview
 
-求职岗位跟踪（Job Tracker）是一个**纯前端、零依赖的单文件 HTML** 求职管理工具：把投递全流程（岗位、状态、周期、JD、备注）管清楚，带数据看板与 JD 自动填充，可选连接 GitHub 私有 Gist 跨设备同步。本 Skill 让另一个用户/AI **一键克隆出属于自己的实例**——数据存在用户自己的 Gist，作者（李玲）看不到、平台不锁。
+求职管家（JobSteward）是一个**纯前端、零依赖的单文件 HTML** 求职管理工具：把投递全流程（岗位、状态、周期、JD、备注）管清楚，带数据看板与 JD 自动填充，可选连接 GitHub 私有 Gist 跨设备同步。本 Skill 让另一个用户/AI **一键克隆出属于自己的实例**——数据存在用户自己的 Gist，作者（李玲）看不到、平台不锁。
 
 ## When To Use
 
-- 用户说"部署/克隆/搭一个求职跟踪工具""做同款 job-tracker""求职投递看板"。
+- 用户说"部署/克隆/搭一个求职跟踪工具""做同款 jobsteward""求职投递看板"。
 - 用户想要一个**自己掌控数据**的求职管理工具，不愿把数据交给第三方 SaaS。
 - 作为"去平台化单文件应用"的复刻范例。
 
@@ -20,7 +20,7 @@ agent_created: true
 
 ### 1. 取得应用本体
 
-应用是单个自包含文件 `assets/index.html`（CSS/JS/SVG 全内联，约 128KB，双击即用）。最新版也在 GitHub 仓库 `https://github.com/ll-lab0/job-tracker` 的 `index.html`。两者等价，优先用仓库最新版。
+应用是单个自包含文件 `assets/index.html`（CSS/JS/SVG 全内联，约 128KB，双击即用）。最新版也在 GitHub 仓库 `https://github.com/ll-lab0/jobsteward` 的 `index.html`。两者等价，优先用仓库最新版。
 
 ### 2. 部署（三选一）
 

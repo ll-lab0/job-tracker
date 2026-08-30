@@ -1,4 +1,4 @@
-# 求职岗位跟踪（Job Tracker）
+# 求职管家（JobSteward）
 
 纯前端、零依赖的**单文件 HTML** 求职管理工具，帮你把投递全流程管清楚。数据存在你自己的浏览器，可选连接 GitHub 私有 Gist 跨设备同步。
 
@@ -18,7 +18,7 @@
 ## 🚀 三种用法
 
 1. **双击即用（最简单）**：下载 `index.html`，双击用浏览器打开。数据存本机，不联网也照用。
-2. **在线 Demo（匿名 · 无需登录）**：https://ll-lab0.github.io/job-tracker （GitHub Pages，永久免费；国内访问偶慢，可下载文件本地跑）
+2. **在线 Demo（匿名 · 无需登录）**：https://ll-lab0.github.io/jobsteward （GitHub Pages，永久免费；国内访问偶慢，可下载文件本地跑）
 3. **自部署**：Fork 本仓库，开启 GitHub Pages 或部署到任意静态托管（Vercel / Netlify / EdgeOne 等）。
 
 > 入口说明：上方「在线 Demo」是**匿名公开入口，无需登录**即可打开使用，也是当前唯一提供的在线入口。

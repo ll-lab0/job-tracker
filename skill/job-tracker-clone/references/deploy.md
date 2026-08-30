@@ -1,10 +1,10 @@
-# Job Tracker 部署与同步详细指南
+# JobSteward 部署与同步详细指南
 
 ## 一、部署方式
 
 ### A. GitHub Pages（匿名公开，推荐）
 
-1. 登录 GitHub，新建仓库（如 `job-tracker`）或 Fork `https://github.com/ll-lab0/job-tracker`。
+1. 登录 GitHub，新建仓库（如 `jobsteward`）或 Fork `https://github.com/ll-lab0/jobsteward`。
 2. 把 `index.html` 放到仓库根目录（main 分支）。
 3. 仓库 → Settings → Pages → Source 选 `Deploy from a branch` → Branch 选 `main` / `(root)` → Save。
 4. 等待约 1 分钟，访问 `https://<你的用户名>.github.io/<仓库名>/`。
@@ -25,11 +25,11 @@ Vercel / Netlify / EdgeOne / 对象存储（OSS/COS + CDN）均只需上传单�
 ### 步骤
 
 1. 打开 https://github.com/settings/tokens
-2. 点 **Generate new token (classic)**，Note 随意（如 `job-tracker-sync`）。
+2. 点 **Generate new token (classic)**，Note 随意（如 `jobsteward-sync`）。
 3. 权限**只勾 `gist`** 一项，其余全部不勾（最小权限）。
 4. 生成后复制 `ghp_xxxxxxxxxxxx` 令牌（只显示一次）。
 5. 工具内点顶部「云同步」→ 粘贴令牌 → 点保存并连接。
-6. 首次连接自动在你的账户下创建**私有 Gist**（名为 `job-tracker-data`，内容加密无关、仅你可见）。
+6. 首次连接自动在你的账户下创建**私有 Gist**（名为 `jobsteward-data`，内容加密无关、仅你可见）。
 7. 第二台设备：打开同一工具 → 云同步 → 粘贴**同一令牌** → 连接即同步同一份数据。
 
 ### 排错
