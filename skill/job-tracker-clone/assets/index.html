@@ -112,7 +112,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     display:flex;gap:9px;align-items:flex-start;font-size:13px;color:#33415c;line-height:1.55;}
   .aihint svg{flex:0 0 auto;margin-top:1px;}
   .aihint b{color:var(--brand-d);}
-  .aihint .x{margin-left:auto;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;padding:0 2px;}
+  .aihint .x{margin-left:auto;background:none;border:none;color:var(--sub);font-size:20px;line-height:1;width:40px;height:40px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   /* 筛选 */
   .filters{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 16px;-webkit-overflow-scrolling:touch;}
   .filters button{flex:0 0 auto;background:#f7f9fc;border:1px solid #e8ebf0;border-radius:18px;
@@ -777,8 +777,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     // 弹窗「当前同步状态」实时跟随状态条，避免与状态条不一致（弹窗原先写死「已自动同步」）
     if(gh && gh.enabled){
       var ms=document.getElementById('ghSyncState');
-      if(ms) ms.textContent = lastSyncText || '未开始';
+      if(ms) ms.textContent = getSyncTextForModal(lastSyncText);
     }
+  }
+  // 状态条文案偏简洁，弹窗内可指向「立即同步」按钮，做一处转换
+  function getSyncTextForModal(t){
+    if(!t) return '未开始';
+    if(/^自动同步中/.test(t)) return '自动同步中…速度过慢可手动点击下方「立即同步」';
+    return t;
   }
   function setCookie(name, value, days){
     try{ var d=new Date(); d.setTime(d.getTime()+days*86400000); document.cookie=name+'='+encodeURIComponent(value||'')+';expires='+d.toUTCString()+';path=/;SameSite=Lax;Secure'; }catch(e){}
@@ -856,7 +862,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghRetrySync(){
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中… 速度过慢可手动点「云同步」');
     ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){
       setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success');
       ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72');
@@ -921,7 +927,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
     pushTimer=setTimeout(function(){
-      setSync('自动同步中… 偏慢可点「云同步」');
+      setSync('自动同步中… 速度过慢可手动点「云同步」');
       // 先推后拉：先把本机改动（含刚补填的投递/面试日期）推上去，确保一定上传、不被前置拉取失败短路；
       // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
       ghPush(allRows)
@@ -933,7 +939,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 真正的双向同步：先推本机改动，再拉云端合并（拉取失败也照常推）。供「云同步」按钮与重试复用
   function twoWaySync(){
     if(!gh.enabled) return;
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中… 速度过慢可手动点「云同步」');
     ghPush(allRows)
       .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
       .then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); })
@@ -942,7 +948,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
   function ghPull(force){
     if(!gh.enabled) return Promise.resolve();
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中… 速度过慢可手动点「云同步」');
     return ghFetch().then(function(cloud){
       if(cloud && cloud.length){
         if(force){ allRows=cloud.slice(); }
@@ -1297,7 +1303,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); setSync('自动同步中… 偏慢可点「云同步」'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
+    else if(gh.enabled){ buildFilters(); render(); setSync('自动同步中… 速度过慢可手动点「云同步」'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     if(gh.enabled) startAutoPull();
     updateTabs();
@@ -2173,7 +2179,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       syncHint.style.display='none';
       advBlock.style.display='';
       statusLine.style.display='';
-      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b id="ghSyncState">'+(lastSyncText||'未开始')+'</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
+      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b id="ghSyncState">'+getSyncTextForModal(lastSyncText)+'</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
@@ -2205,7 +2211,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   if(ghTokenInput) ghTokenInput.addEventListener('input', updateConnectButton);
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); updateConnectButton(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){

@@ -2211,7 +2211,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   if(ghTokenInput) ghTokenInput.addEventListener('input', updateConnectButton);
   function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); updateConnectButton(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
-  syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
+  syncTopBtn.addEventListener('click',function(){ openSyncModal(); });
   var syncRetryBtn=document.getElementById('syncRetry');
   if(syncRetryBtn) syncRetryBtn.addEventListener('click', ghRetrySync);
   document.getElementById('ghRediscover').addEventListener('click',function(){
