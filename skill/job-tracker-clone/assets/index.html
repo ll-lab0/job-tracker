@@ -660,7 +660,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var statusFilter='all';
   var searchTerm='';
   var periodFilter=currentQuarterKey(); // 周期单选：空字符串=全部；默认当前季度
-  var viewMode='list'; // 'list' | 'dash'
+  var viewMode='list'; // 'list' | 'calendar' | 'dash'
 
   var STATUS_LIST=['待打招呼','待投','已投·待回复','不合适','面试中','已拒','已Offer'];
   var BADGE_CLASS={'待打招呼':'b-greet','待投':'b-todo','已投·待回复':'b-sent','不合适':'b-nofit','面试中':'b-interview','已Offer':'b-offer','已拒':'b-reject'};
@@ -1251,6 +1251,29 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     b.addEventListener('click', function(){ viewMode = b.getAttribute('data-view'); updateTabs(); setView(); });
   });
   window.addEventListener('resize', moveIndicator);
+  // 手机端左右滑动切换 3 个 tab（list→calendar→dash）。仅触屏触发，桌面 click 通道不受影响；passive 不拦截滚动；弹窗打开时不切。
+  (function(){
+    if(!('ontouchstart' in window) && (navigator.maxTouchPoints||0)<=0) return;
+    var TAB_ORDER=['list','calendar','dash'];
+    var swSx=0, swSy=0, swTrack=false;
+    document.addEventListener('touchstart', function(e){
+      if(e.touches.length!==1){ swTrack=false; return; }
+      if(document.querySelectorAll('.modal-mask.show').length>0){ swTrack=false; return; }
+      swSx=e.touches[0].clientX; swSy=e.touches[0].clientY; swTrack=true;
+    }, {passive:true});
+    document.addEventListener('touchend', function(e){
+      if(!swTrack) return; swTrack=false;
+      var t=e.changedTouches[0]; if(!t) return;
+      var dx=t.clientX-swSx, dy=t.clientY-swSy;
+      if(Math.abs(dx)<60) return;                  // 横向位移太小，忽略
+      if(Math.abs(dx) <= Math.abs(dy)*1.5) return;  // 竖向为主，当正常滚动，不切 tab
+      var idx=TAB_ORDER.indexOf(viewMode); if(idx<0) return;
+      var ni = dx<0 ? idx+1 : idx-1;                // 左滑→下一个，右滑→上一个
+      if(ni<0 || ni>=TAB_ORDER.length) return;      // 边界不循环
+      viewMode=TAB_ORDER[ni]; setView();
+    }, {passive:true});
+  })();
+
   // 全局一键展开 / 收起：JD 与 打招呼话术 独立控制（按钮在列表上方工具条，render 重建列表不影响按钮引用）
   var expandBar = document.getElementById('expandBar');
   var expandJdBtn = createButton('io-btn expand-link', '一键展开 JD', expandBar);
