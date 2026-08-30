@@ -774,6 +774,11 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var rb=document.getElementById('syncRetry');
     // 只有「已连接且失败」才显示重试：未连接时重试无效（需先填令牌）
     if(rb) rb.style.display = (type==='error' && gh.enabled) ? '' : 'none';
+    // 弹窗「当前同步状态」实时跟随状态条，避免与状态条不一致（弹窗原先写死「已自动同步」）
+    if(gh && gh.enabled){
+      var ms=document.getElementById('ghSyncState');
+      if(ms) ms.textContent = lastSyncText || '未开始';
+    }
   }
   function setCookie(name, value, days){
     try{ var d=new Date(); d.setTime(d.getTime()+days*86400000); document.cookie=name+'='+encodeURIComponent(value||'')+';expires='+d.toUTCString()+';path=/;SameSite=Lax;Secure'; }catch(e){}
@@ -2168,7 +2173,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       syncHint.style.display='none';
       advBlock.style.display='';
       statusLine.style.display='';
-      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b>已自动同步</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
+      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b id="ghSyncState">'+(lastSyncText||'未开始')+'</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
