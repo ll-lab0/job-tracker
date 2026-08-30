@@ -131,6 +131,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .toolbar input{flex:1 1 160px;min-width:0;height:34px;border:1px solid var(--line);border-radius:10px;padding:0 12px 0 32px;font-size:14px;background:#fafbfc;color:var(--ink);font-family:inherit;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .toolbar .search-box{position:relative;flex:1 1 160px;min-width:0;display:flex;align-items:center;}
   .toolbar .search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#9aa3af;opacity:.5;pointer-events:none;}
+  .toolbar .search-box input{padding-right:32px;}
+  .toolbar .search-clear{position:absolute;right:0;top:50%;transform:translateY(-50%);width:32px;height:32px;display:none;align-items:center;justify-content:center;border:none;background:transparent;border-radius:50%;color:#6b7280;cursor:pointer;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .toolbar .search-clear::before{content:'';position:absolute;width:20px;height:20px;background:#eef1f6;border-radius:50%;z-index:0;}
+  .toolbar .search-clear:hover::before{background:#e2e6ec;}
+  .toolbar .search-clear:hover{color:#374151;}
+  .toolbar .search-clear svg{position:relative;z-index:1;display:block;width:12px;height:12px;pointer-events:none;}
+  .toolbar .search-clear.show{display:flex;}
+  /* 搜索框与周期选择器保持并排；小屏允许文字截断，不换行 */
   .toolbar select{flex:0 0 auto;border:1px solid var(--line);border-radius:10px;padding:10px 10px;font-size:14px;background:#fafbfc;color:var(--ink);font-family:inherit;box-sizing:border-box;max-width:42vw;}
   .period-dd-wrap{flex:0 1 150px;min-width:130px;max-width:180px;}
   .period-dd{width:100%;}
@@ -304,8 +312,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .modal-actions .m-cancel{background:#eef0f3;color:var(--ink);}
   .sync-actions{flex-direction:column;align-items:stretch;gap:10px;}
   .sync-actions button{width:100%;flex:none;min-height:42px;border-radius:10px;font-size:15px;font-weight:600;border:none;}
-  .sync-actions .m-ok{background:var(--brand);color:#fff;}
-  .sync-actions .m-secondary{background:#fff;color:var(--ink);border:1px solid var(--line);}
+.sync-actions .m-ok{background:var(--brand);color:#fff;}
+.m-ok:disabled,.m-ok.disabled{opacity:.55;pointer-events:none;filter:grayscale(.4);}
+.sync-actions .m-secondary{background:#fff;color:var(--ink);border:1px solid var(--line);}
   .sync-actions .m-cancel{background:#e5e7eb;color:#374151;font-weight:600;}
   .modal-title{font-weight:600;font-size:15px;margin:0 0 4px;}
   .pitch-ta{width:100%;min-height:120px;margin:10px 0;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:14px;line-height:1.5;font-family:inherit;resize:vertical;box-sizing:border-box;}
@@ -397,7 +406,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .cal-detail-inline-sec{margin:8px 0;}
   .cal-detail-inline-sec:not(:last-of-type){border-bottom:1px dashed #d6e4f7;padding-bottom:8px;margin-bottom:8px;}
   .cal-detail-inline-sec h4{margin:0 0 5px;font-size:12px;color:#5a6c8a;font-weight:600;}
-  .cal-detail-inline-row{font-size:13px;padding:6px 0;color:#33415c;display:grid;grid-template-columns:1fr 1fr 70px;gap:8px;align-items:baseline;line-height:1.45;}
+  .cal-detail-inline-row{font-size:13px;padding:6px 0;color:#33415c;display:grid;grid-template-columns:1fr 1fr 70px;gap:8px;align-items:baseline;line-height:1.45;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border-radius:6px;}
+  .cal-detail-inline-row:active{background:rgba(47,107,255,.06);}
   .cal-detail-inline-row b{color:#1f2a44;font-weight:600;}
   .cal-detail-inline-st{font-size:11px;color:#6b7b94;padding:0;white-space:nowrap;}
   .cal-detail-inline-empty{color:#6b7b94;padding:10px 0;font-size:13px;}
@@ -426,7 +436,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2f6bff" stroke-width="2"/><path d="M12 11v5" stroke="#2f6bff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="#2f6bff"/></svg>
     <div>
       <div><b>跨设备同步</b>：点上方「云同步」连接 GitHub 私有 Gist，任意设备打开同一链接即可自动同步。</div>
-      <div style="margin-top:6px;">未连接时数据存在本机浏览器，可用「导出备份 / 导入备份 / 导出表格」手动迁移。</div>
+      <div style="margin-top:6px;">未连接时数据存在本机浏览器（关闭页面或重启电脑不会丢失；换浏览器/换电脑/无痕模式不保留）。想跨设备使用请点「云同步」；导出备份/导入备份/导出表格仅作备用迁移。</div>
     </div>
     <span id="aiHintXWrap"></span>
   </div>
@@ -476,6 +486,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <div class="search-box">
         <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="searchInput" placeholder="搜索公司/职位名称">
+        <button type="button" class="search-clear" id="searchClear" aria-label="清空搜索" title="清空"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
     </div>
     <div class="filters" id="filters"></div>
@@ -546,7 +557,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     </div>
     <div class="modal-actions sync-actions">
       <button type="button" class="m-ok" id="ghNowSync" style="display:none;">立即同步</button>
-      <button type="button" class="m-ok" id="ghConnect">保存并连接</button>
+      <button type="button" class="m-ok" id="ghConnect" disabled>保存并连接</button>
       <button type="button" class="m-cancel" id="ghCancel">关闭</button>
     </div>
     <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步：<b>打开或刷新页面</b>即自动把本机改动上传云端、并拉取其他设备更新；也可随时点「立即同步」手动同步。</div>
@@ -653,7 +664,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
 
   var STATUS_LIST=['待打招呼','待投','已投·待回复','不合适','面试中','已拒','已Offer'];
   var BADGE_CLASS={'待打招呼':'b-greet','待投':'b-todo','已投·待回复':'b-sent','不合适':'b-nofit','面试中':'b-interview','已Offer':'b-offer','已拒':'b-reject'};
-  var STATUS_COLOR={'待打招呼':'#fde2e2','待投':'#fef3c7','已投·待回复':'#ffe4d6','不合适':'#fef9c3','面试中':'#d1fae5','已Offer':'#9f7aea','已拒':'#eef0f3'};
+  var STATUS_COLOR={'待打招呼':'#fde2e2','待投':'#fef3c7','已投·待回复':'#ffe4d6','不合适':'#fef9c3','面试中':'#d1fae5','已Offer':'#c4b5fd','已拒':'#eef0f3'};
 
   function todayStr(){ return dateStr(); }
   function dateStr(){
@@ -718,7 +729,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function upsert(rec){ var a=lsLoad(); var f=false; for(var i=0;i<a.length;i++){ if(a[i].id===rec.id){ a[i]=rec; f=true; break; } } if(!f) a.unshift(rec); lsSave(a); schedulePush(); }
   function removeRec(id){ var a=lsLoad(); for(var i=0;i<a.length;i++){ if(a[i].id===id){ a[i]._deleted=true; a[i]['更新时间']=nowStr(); break; } } lsSave(a); allRows=a; schedulePush(); }
   // 仅返回未删除的记录（墓碑 _deleted 的记录在合并同步中保留、渲染时过滤）
-  function activeRows(){ return (allRows||[]).filter(function(r){ return !r._deleted; }); }
+  function activeRows(){
+    return (allRows||[]).filter(function(r){ return !r._deleted; })
+      .sort(function(a,b){ var ta=a['录入时间']||a.id||''; var tb=b['录入时间']||b.id||''; return tb.localeCompare(ta); });
+  }
 
   // 周期字段：按录入时间自动记年月为最小粒度；季度/年由它推导，不丢失月
   function cycleKey(r){ return (r['录入时间']||'').slice(0,7); }            // 2026-08
@@ -748,10 +762,14 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   var GH_FILE='jobtrack.json';
   var gh={ token:'', gistId:'', enabled:false };
   var pushTimer=null;
+  var lastSyncText='';
+  var lastSyncType='';
 
   function setSync(t, type){
+    lastSyncText=t||'';
+    lastSyncType=type||'';
     var el=document.getElementById('syncStatus');
-    if(el){ el.textContent=t||''; }
+    if(el){ el.textContent=lastSyncText; }
     if(el){ el.style.color = type==='error' ? '#e5484d' : type==='success' ? '#1bbf72' : type==='warn' ? '#e8a317' : 'var(--sub)'; }
     var rb=document.getElementById('syncRetry');
     // 只有「已连接且失败」才显示重试：未连接时重试无效（需先填令牌）
@@ -833,7 +851,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghRetrySync(){
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
-    setSync('同步中…');
+    setSync('自动同步中… 偏慢可点「云同步」');
     ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){
       setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success');
       ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72');
@@ -898,7 +916,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
     pushTimer=setTimeout(function(){
-      setSync('同步中…');
+      setSync('自动同步中… 偏慢可点「云同步」');
       // 先推后拉：先把本机改动（含刚补填的投递/面试日期）推上去，确保一定上传、不被前置拉取失败短路；
       // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
       ghPush(allRows)
@@ -910,7 +928,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 真正的双向同步：先推本机改动，再拉云端合并（拉取失败也照常推）。供「云同步」按钮与重试复用
   function twoWaySync(){
     if(!gh.enabled) return;
-    setSync('同步中…');
+    setSync('自动同步中… 偏慢可点「云同步」');
     ghPush(allRows)
       .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
       .then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); })
@@ -919,7 +937,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
   function ghPull(force){
     if(!gh.enabled) return Promise.resolve();
-    setSync('同步中…');
+    setSync('自动同步中… 偏慢可点「云同步」');
     return ghFetch().then(function(cloud){
       if(cloud && cloud.length){
         if(force){ allRows=cloud.slice(); }
@@ -1274,7 +1292,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); setSync('同步中…'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
+    else if(gh.enabled){ buildFilters(); render(); setSync('自动同步中… 偏慢可点「云同步」'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     if(gh.enabled) startAutoPull();
     updateTabs();
@@ -1541,12 +1559,12 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     html+='<div class="cal-detail-inline-title">'+key+' 求职行程</div>';
     if(deliver.length){
       html+='<div class="cal-detail-inline-sec"><h4>投递（'+deliver.length+' 份）</h4>';
-      deliver.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
+      deliver.forEach(function(r){ html+='<div class="cal-detail-inline-row" data-edit-id="'+esc(r.id)+'" data-edit-field="deliverDate"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
       html+='</div>';
     }
     if(interview.length){
       html+='<div class="cal-detail-inline-sec"><h4>面试（'+interview.length+' 家）</h4>';
-      interview.forEach(function(r){ html+='<div class="cal-detail-inline-row"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
+      interview.forEach(function(r){ html+='<div class="cal-detail-inline-row" data-edit-id="'+esc(r.id)+'" data-edit-field="interviewDate"><b>'+(r['公司']||'未填公司')+'</b><span>'+(r['职位']||'')+'</span><span class="cal-detail-inline-st">'+(r['投递状态']||'')+'</span></div>'; });
       html+='</div>';
     }
     if(!deliver.length&&!interview.length){ html+='<div class="cal-detail-inline-empty">这一天没有投递 / 面试记录</div>'; }
@@ -1554,6 +1572,13 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var wrap=document.createElement('div'); wrap.innerHTML=html;
     var detail=wrap.firstChild;
     if(cell.nextSibling){ cell.parentNode.insertBefore(detail, cell.nextSibling); } else { cell.parentNode.appendChild(detail); }
+    Array.prototype.forEach.call(detail.querySelectorAll('.cal-detail-inline-row'), function(row){
+      row.addEventListener('click', function(){
+        var id=row.getAttribute('data-edit-id');
+        var field=row.getAttribute('data-edit-field');
+        if(id) openEdit(id, field);
+      });
+    });
     detail.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
 
@@ -1582,7 +1607,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       {label:'待打招呼', count:greet, color:'#ff8a00', prev:total},
       {label:'已投·待回复', count:sent, color:'#2f6bff', prev:greet},
       {label:'面试中', count:interview, color:'#059669', prev:sent},
-      {label:'已Offer', count:offered, color:'#a855f7', prev:interview}
+      {label:'已Offer', count:offered, color:'#c4b5fd', prev:interview}
     ];
     var funnelHtml=funnel.map(function(step, i){
       var w=Math.max(2, Math.round(step.count/total*100)); // 统一以目标岗位为 100% 标尺
@@ -1733,7 +1758,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   try{ if(localStorage.getItem('aiHintClosed')==='1' && aiHint){ aiHint.style.display='none'; } }catch(e){}
   if(aiHintX){ aiHintX.addEventListener('click',function(){ if(aiHint){ aiHint.style.display='none'; try{ localStorage.setItem('aiHintClosed','1'); }catch(e){} } }); }
 
-  function openEdit(id){
+  function openEdit(id, focusField){
     var r=findById(id);
     if(!r) return;
     editingId=id;
@@ -1751,6 +1776,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     document.getElementById('formTitle').textContent='编辑岗位';
     if(jdHint) jdHint.style.display='none';
     jobFormModal.classList.add('show');
+    if(focusField && form[focusField]){
+      setTimeout(function(){ try{ form[focusField].focus(); if(form[focusField].select) form[focusField].select(); }catch(e){} }, 60);
+    }
   }
 
   // ===== JD 自动识别填充（公司 / 职位 / 薪资）=====
@@ -2009,7 +2037,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     var btn=saveBtn; btn.disabled=true; btn.textContent='保存中…';
     try{
       upsert(rec);
-      closeAllStatusDd(); jobFormModal.classList.remove('show'); jobFormModal.style.zIndex=''; editingId=null; form.reset(); cacheClear(); loadData();
+      closeAllStatusDd(); jobFormModal.classList.remove('show'); jobFormModal.style.zIndex=''; editingId=null; form.reset(); cacheClear(); loadData(); showCopyToast('保存成功');
       if(jdHint) jdHint.style.display='none';
       btn.disabled=false; btn.textContent='保存';
     }catch(err){ modalConfirm('保存失败，请重试','知道了'); console.error(err); btn.disabled=false; btn.textContent='保存'; }
@@ -2137,10 +2165,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       tokenWrap.style.display='none';
       connectBtn.style.display='none';
       nowBtn.style.display='';
-      syncHint.style.display='';
+      syncHint.style.display='none';
       advBlock.style.display='';
       statusLine.style.display='';
-      statusLine.innerHTML='已连接并自动同步。本地共 <b>'+activeRows().length+'</b> 条。';
+      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b>已自动同步</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
@@ -2161,7 +2189,16 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       gistShow.style.display='none';
     }
   }
-  function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
+  function updateConnectButton(){
+    var btn=document.getElementById('ghConnect');
+    var input=document.getElementById('ghToken');
+    if(!btn||!input) return;
+    if(input.value.trim()){ btn.removeAttribute('disabled'); btn.classList.remove('disabled'); }
+    else { btn.setAttribute('disabled','disabled'); btn.classList.add('disabled'); }
+  }
+  var ghTokenInput=document.getElementById('ghToken');
+  if(ghTokenInput) ghTokenInput.addEventListener('input', updateConnectButton);
+  function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); updateConnectButton(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
   syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
   var syncRetryBtn=document.getElementById('syncRetry');
@@ -2220,7 +2257,12 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   });
 
   var searchInput=document.getElementById('searchInput');
-  if(searchInput){ searchInput.addEventListener('input',function(){ searchTerm=searchInput.value.trim(); render(); }); }
+  var searchClear=document.getElementById('searchClear');
+  function syncSearchClear(){ if(searchClear){ searchClear.classList.toggle('show', !!searchInput.value); } }
+  if(searchInput){
+    searchInput.addEventListener('input',function(){ searchTerm=searchInput.value.trim(); syncSearchClear(); render(); });
+    if(searchClear){ searchClear.addEventListener('click',function(){ searchInput.value=''; searchTerm=''; syncSearchClear(); render(); }); }
+  }
 
   // 切回页面（如手机端推完、回到电脑端标签页）自动拉一次云端，及时拿到其他设备的日期/状态更新；只拉不推，安全
   document.addEventListener('visibilitychange',function(){ if(!document.hidden && gh.enabled){ ghPull(false).catch(function(){}); } });

@@ -312,8 +312,9 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .modal-actions .m-cancel{background:#eef0f3;color:var(--ink);}
   .sync-actions{flex-direction:column;align-items:stretch;gap:10px;}
   .sync-actions button{width:100%;flex:none;min-height:42px;border-radius:10px;font-size:15px;font-weight:600;border:none;}
-  .sync-actions .m-ok{background:var(--brand);color:#fff;}
-  .sync-actions .m-secondary{background:#fff;color:var(--ink);border:1px solid var(--line);}
+.sync-actions .m-ok{background:var(--brand);color:#fff;}
+.m-ok:disabled,.m-ok.disabled{opacity:.55;pointer-events:none;filter:grayscale(.4);}
+.sync-actions .m-secondary{background:#fff;color:var(--ink);border:1px solid var(--line);}
   .sync-actions .m-cancel{background:#e5e7eb;color:#374151;font-weight:600;}
   .modal-title{font-weight:600;font-size:15px;margin:0 0 4px;}
   .pitch-ta{width:100%;min-height:120px;margin:10px 0;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:14px;line-height:1.5;font-family:inherit;resize:vertical;box-sizing:border-box;}
@@ -435,7 +436,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2f6bff" stroke-width="2"/><path d="M12 11v5" stroke="#2f6bff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="#2f6bff"/></svg>
     <div>
       <div><b>跨设备同步</b>：点上方「云同步」连接 GitHub 私有 Gist，任意设备打开同一链接即可自动同步。</div>
-      <div style="margin-top:6px;">未连接时数据存在本机浏览器（关闭页面或重启电脑不会丢失；无痕/隐私模式不会保留）。想跨设备使用请点「云同步」；导出备份/导入备份/导出表格仅作备用迁移。</div>
+      <div style="margin-top:6px;">未连接时数据存在本机浏览器（关闭页面或重启电脑不会丢失；换浏览器/换电脑/无痕模式不保留）。想跨设备使用请点「云同步」；导出备份/导入备份/导出表格仅作备用迁移。</div>
     </div>
     <span id="aiHintXWrap"></span>
   </div>
@@ -556,7 +557,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     </div>
     <div class="modal-actions sync-actions">
       <button type="button" class="m-ok" id="ghNowSync" style="display:none;">立即同步</button>
-      <button type="button" class="m-ok" id="ghConnect">保存并连接</button>
+      <button type="button" class="m-ok" id="ghConnect" disabled>保存并连接</button>
       <button type="button" class="m-cancel" id="ghCancel">关闭</button>
     </div>
     <div class="sync-hint" id="ghSyncHint" style="display:none;">已开启自动同步：<b>打开或刷新页面</b>即自动把本机改动上传云端、并拉取其他设备更新；也可随时点「立即同步」手动同步。</div>
@@ -2164,10 +2165,10 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       tokenWrap.style.display='none';
       connectBtn.style.display='none';
       nowBtn.style.display='';
-      syncHint.style.display='';
+      syncHint.style.display='none';
       advBlock.style.display='';
       statusLine.style.display='';
-      statusLine.innerHTML='已连接 GitHub 私有 Gist。<div style="margin-top:6px;">当前同步状态：<b>'+esc(lastSyncText||'未开始')+'</b></div><div style="margin-top:2px;">本地共 <b>'+activeRows().length+'</b> 条。打开/刷新页面会自动同步，也可点顶部「云同步」或下方「立即同步」手动触发。</div>';
+      statusLine.innerHTML='已连接 GitHub 私有 Gist<div style="margin-top:4px;">当前同步状态：<b>已自动同步</b> · 本地 <b>'+activeRows().length+'</b> 条</div><div style="margin-top:2px;font-size:12px;color:var(--sub);">打开/刷新页面自动同步，也可点「立即同步」手动触发。</div>';
       rediscoverBtn.style.display='';
       if(gh.gistId){
         gistShow.style.display='';
@@ -2188,7 +2189,16 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       gistShow.style.display='none';
     }
   }
-  function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); }
+  function updateConnectButton(){
+    var btn=document.getElementById('ghConnect');
+    var input=document.getElementById('ghToken');
+    if(!btn||!input) return;
+    if(input.value.trim()){ btn.removeAttribute('disabled'); btn.classList.remove('disabled'); }
+    else { btn.setAttribute('disabled','disabled'); btn.classList.add('disabled'); }
+  }
+  var ghTokenInput=document.getElementById('ghToken');
+  if(ghTokenInput) ghTokenInput.addEventListener('input', updateConnectButton);
+  function openSyncModal(){ ghModal.classList.add('show'); document.getElementById('ghToken').value=gh.token; var adv=document.getElementById('ghAdvBody'); if(adv) adv.style.display='none'; var tog=document.getElementById('ghAdvToggle'); if(tog) tog.textContent='高级选项'; renderSyncModal(); updateConnectButton(); }
   function closeSyncModal(){ ghModal.style.opacity='0'; setTimeout(function(){ ghModal.classList.remove('show'); ghModal.style.opacity=''; }, 180); }
   syncTopBtn.addEventListener('click',function(){ openSyncModal(); if(gh.enabled){ twoWaySync(); } });
   var syncRetryBtn=document.getElementById('syncRetry');
