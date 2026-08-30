@@ -132,7 +132,8 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   .toolbar .search-box{position:relative;flex:1 1 160px;min-width:0;display:flex;align-items:center;}
   .toolbar .search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#9aa3af;opacity:.5;pointer-events:none;}
   .toolbar .search-box input{padding-right:30px;}
-  .toolbar .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:20px;height:20px;display:none;align-items:center;justify-content:center;border:none;background:#eef1f6;border-radius:50%;color:#6b7280;font-size:15px;line-height:1;cursor:pointer;padding:0;}
+  .toolbar .search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:20px;height:20px;display:none;align-items:center;justify-content:center;border:none;background:#eef1f6;border-radius:50%;color:#6b7280;cursor:pointer;padding:0;}
+  .toolbar .search-clear svg{display:block;width:12px;height:12px;}
   .toolbar .search-clear:hover{background:#e2e6ec;color:#374151;}
   .toolbar .search-clear.show{display:flex;}
   .toolbar select{flex:0 0 auto;border:1px solid var(--line);border-radius:10px;padding:10px 10px;font-size:14px;background:#fafbfc;color:var(--ink);font-family:inherit;box-sizing:border-box;max-width:42vw;}
@@ -480,7 +481,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
       <div class="search-box">
         <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="searchInput" placeholder="搜索公司/职位名称">
-        <button type="button" class="search-clear" id="searchClear" aria-label="清空搜索" title="清空">×</button>
+        <button type="button" class="search-clear" id="searchClear" aria-label="清空搜索" title="清空"><svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
     </div>
     <div class="filters" id="filters"></div>
@@ -838,7 +839,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function ghRetrySync(){
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中…');
     ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){
       setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success');
       ghMsgSet('已同步（本地 '+activeRows().length+' 条）','#1bbf72');
@@ -903,7 +904,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     if(!gh.enabled) return;
     clearTimeout(pushTimer);
     pushTimer=setTimeout(function(){
-      setSync('自动同步中… 偏慢可点「云同步」');
+      setSync('自动同步中…');
       // 先推后拉：先把本机改动（含刚补填的投递/面试日期）推上去，确保一定上传、不被前置拉取失败短路；
       // 再 ghPull(false) 合并云端其他设备的更新。拉取失败也照常推送，任一方都不被单方面覆盖。
       ghPush(allRows)
@@ -915,7 +916,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // 真正的双向同步：先推本机改动，再拉云端合并（拉取失败也照常推）。供「云同步」按钮与重试复用
   function twoWaySync(){
     if(!gh.enabled) return;
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中…');
     ghPush(allRows)
       .then(function(){ return ghPull(false); }, function(){ return ghPull(false); })
       .then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); })
@@ -924,7 +925,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   // force=true：以云端为唯一真相源，直接用云端镜像覆盖本机（根治"差 N 条"）
   function ghPull(force){
     if(!gh.enabled) return Promise.resolve();
-    setSync('自动同步中… 偏慢可点「云同步」');
+    setSync('自动同步中…');
     return ghFetch().then(function(cloud){
       if(cloud && cloud.length){
         if(force){ allRows=cloud.slice(); }
@@ -1279,7 +1280,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
     ghLoadConfig();
     allRows=normalizeRows(lsLoad());
     if(location.protocol==='file:'){ setSync('本地预览：请用公开链接打开以跨设备同步'); buildFilters(); render(); }
-    else if(gh.enabled){ buildFilters(); render(); setSync('自动同步中… 偏慢可点「云同步」'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
+    else if(gh.enabled){ buildFilters(); render(); setSync('自动同步中…'); ghPull(false).then(function(){ return ghPush(allRows); }).then(function(){ setSync('已自动同步 · 本机改动已存云端，其他设备更新已合并','success'); }).catch(function(e){ var info=ghErrInfo(e); setSync(info.title+'：'+info.detail+' · 本地数据已保留','error'); }); } // 先渲染本机数据（刷新立即可见），再拉云端合并、随后把本机合并后最新态推回云端（修复「刷新只拉不推」缺口，确保其他设备能拿到本机最新改动）；拉取/推送失败由 ghErrInfo 置红且本地数据已保留
     else { setSync('当前数据仅存在于本机（点「云同步」连接 GitHub）'); buildFilters(); render(); }
     if(gh.enabled) startAutoPull();
     updateTabs();
@@ -2229,7 +2230,7 @@ document.addEventListener('touchmove', function(e){ if(e.touches.length > 1){ e.
   function syncSearchClear(){ if(searchClear){ searchClear.classList.toggle('show', !!searchInput.value); } }
   if(searchInput){
     searchInput.addEventListener('input',function(){ searchTerm=searchInput.value.trim(); syncSearchClear(); render(); });
-    if(searchClear){ searchClear.addEventListener('click',function(){ searchInput.value=''; searchTerm=''; syncSearchClear(); render(); searchInput.focus(); }); }
+    if(searchClear){ searchClear.addEventListener('click',function(){ searchInput.value=''; searchTerm=''; syncSearchClear(); render(); }); }
   }
 
   // 切回页面（如手机端推完、回到电脑端标签页）自动拉一次云端，及时拿到其他设备的日期/状态更新；只拉不推，安全
